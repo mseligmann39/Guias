@@ -35,6 +35,8 @@ class GameController extends Controller
             'categories.*' => 'exists:categories,id' // Verificamos que cada ID exista en la tabla categories
         ]);
 
+        #dd($validatedData);
+
         // Creamos el juego con sus datos principales
         $game = Game::create([
             'title' => $validatedData['title'],

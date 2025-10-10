@@ -3,47 +3,97 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
+use App\Models\Guide;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 
 class GuideController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Muestra todas las guías. Se puede filtrar por juego.
+     * GET /api/guides o /api/guides?game_id=1
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        if ($request->has('game_id')) {
+            return Guide::where('game_id', $request->game_id)->with('user', 'game')->get();
+        }
+
+        return Guide::with('user', 'game')->get();
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Almacena una nueva guía. El autor será el usuario autenticado.
+     * POST /api/guides
      */
     public function store(Request $request)
     {
-        //
+        $validatedData = $request->validate([
+            'title' => 'required|string|max:255',
+            'content' => 'required|string',
+            'game_id' => 'required|exists:games,id',
+        ]);
+
+        $guide = Guide::create([
+            'title' => $validatedData['title'],
+            'slug' => Str::slug($validatedData['title']),
+            'content' => $validatedData['content'],
+            'game_id' => $validatedData['game_id'],
+            'user_id' => Auth::id(), // ¡Importante! Asignamos el ID del usuario autenticado.
+        ]);
+
+        return response()->json($guide->load('user', 'game'), 201);
     }
 
     /**
-     * Display the specified resource.
+     * Muestra una guía específica.
+     * GET /api/guides/{id}
      */
-    public function show(string $id)
+    public function show(Guide $guide)
     {
-        //
+        return $guide->load('user', 'game');
     }
 
     /**
-     * Update the specified resource in storage.
+     * Actualiza una guía. Solo el autor original puede hacerlo.
+     * PUT/PATCH /api/guides/{id}
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, Guide $guide)
     {
-        //
+        // Verificamos que el usuario que intenta actualizar es el autor de la guía.
+        if ($guide->user_id !== Auth::id()) {
+            return response()->json(['message' => 'No autorizado'], 403);
+        }
+
+        $validatedData = $request->validate([
+            'title' => 'required|string|max:255',
+            'content' => 'required|string',
+            'game_id' => 'required|exists:games,id',
+        ]);
+
+        $guide->update([
+            'title' => $validatedData['title'],
+            'slug' => Str::slug($validatedData['title']),
+            'content' => $validatedData['content'],
+            'game_id' => $validatedData['game_id'],
+        ]);
+
+        return response()->json($guide->load('user', 'game'));
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Elimina una guía. Solo el autor original puede hacerlo.
+     * DELETE /api/guides/{id}
      */
-    public function destroy(string $id)
+    public function destroy(Guide $guide)
     {
-        //
+        if ($guide->user_id !== Auth::id()) {
+            return response()->json(['message' => 'No autorizado'], 403);
+        }
+
+        $guide->delete();
+
+        return response()->json(null, 204);
     }
 }
