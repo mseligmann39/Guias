@@ -13,6 +13,8 @@ require __DIR__.'/auth.php';
 // Rutas Públicas (Cualquiera puede verlas)
 Route::apiResource('games', GameController::class)->only(['index', 'show']);
 Route::apiResource('categories', CategoryController::class)->only(['index', 'show']);
+Route::apiResource('guides', GuideController::class)->only(['index', 'show']);
+Route::apiResource('achievements', AchievementController::class)->only(['index', 'show']);
 // Puedes añadir aquí las rutas para ver guías y logros si quieres que sean públicas
 
 // Rutas Protegidas (Solo para usuarios autenticados)
@@ -26,9 +28,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::middleware(['admin'])->group(function () {
         Route::apiResource('games', GameController::class)->except(['index', 'show']);
         Route::apiResource('categories', CategoryController::class)->except(['index', 'show']);
-        Route::apiResource('achievements', AchievementController::class);
+        Route::apiResource('achievements', AchievementController::class)->except(['index', 'show']);
     });
 
     // Rutas para crear/editar guías (cualquier usuario autenticado)
-    Route::apiResource('guides', GuideController::class);
+    Route::apiResource('guides', GuideController::class)->except(['index', 'show']);
 });

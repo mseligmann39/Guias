@@ -15,40 +15,37 @@ class DatabaseSeeder extends Seeder
     /**
      * Seed the application's database.
      */
-    public function run(): void
-    {
-        // Crear usuario administrador
-        $admin = User::factory()->create([
-            'name' => 'Admin',
-            'email' => 'admin@example',
-            'is_admin' => true
-        ]);
+   public function run(): void
+{
+    // 1. Crea usuarios y categorías primero. Esto está bien.
+    $admin = User::factory()->create([
+        'name' => 'Admin User',
+        'email' => 'admin@example.com',
+        'is_admin' => true,
+    ]);
 
-        // Crear 10 usuarios generales
-        User::factory(10)->create();
+    $users = User::factory(10)->create();
+    $categories = Category::factory(15)->create();
 
-        // Crear 10 categorias
-        $categories = Category::factory(10)->create();
-
-        // Crear 10 juegos
-        Game::factory(50)->create()->each(function ($game) use ($categories) {
-            $game->categories()->attach($categories->random(rand(1, 3))->pluck('id')->toArray()
+    // 2. Crea 50 juegos y, muy importante, guarda la colección resultante en la variable $games.
+    $games = Game::factory(50)->create()->each(function ($game) use ($categories) {
+        $game->categories()->attach(
+            $categories->random(rand(1, 3))->pluck('id')->toArray()
         );
-        });
+    });
 
-        // Crear 100 guias asignando un autor y un juego aleatorio para cada una
-        Guide::factory(100)->create()->each(function ($guide) use ($users, $games) {
-            $guide->user()->associate($users->random());
-            $guide->game()->associate($games->random());
-            $guide->save();
-        });
+    // 3. Itera para crear las guías, asignando las claves foráneas ANTES de guardarlas.
+    // Usamos make() para crear las instancias en memoria sin guardarlas aún.
+    Guide::factory(100)->make()->each(function ($guide) use ($users, $games) {
+        $guide->user_id = $users->random()->id;
+        $guide->game_id = $games->random()->id;
+        $guide->save(); // Ahora guardamos la guía con sus relaciones ya asignadas.
+    });
 
-        // Crear 200 logros asignando un juego aleatorio para cada uno
-        Achievement::factory(200)->create()->each(function ($achievement) use ($games) {
-            $achievement->game()->associate($games->random());
-            $achievement->save();
-        });
-
-
-    }
+    // 4. Hacemos lo mismo para los logros.
+    Achievement::factory(200)->make()->each(function ($achievement) use ($games) {
+        $achievement->game_id = $games->random()->id;
+        $achievement->save();
+    });
+}
 }

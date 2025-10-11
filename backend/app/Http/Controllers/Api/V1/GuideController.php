@@ -14,12 +14,14 @@ class GuideController extends Controller
      * Muestra todas las guías. Se puede filtrar por juego.
      * GET /api/guides o /api/guides?game_id=1
      */
-    public function index(Request $request)
+    public function index()
     {
-        if ($request->has('game_id')) {
-            return Guide::where('game_id', $request->game_id)->with('user', 'game')->get();
+        if (request('game_id')) {
+            return Guide::where('game_id', request('game_id'))->with('user', 'game')->get();
         }
 
+        
+       
         return Guide::with('user', 'game')->get();
     }
 
