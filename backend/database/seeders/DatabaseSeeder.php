@@ -27,6 +27,9 @@ class DatabaseSeeder extends Seeder
         // Crear 10 usuarios generales
         User::factory(10)->create();
 
+        // Crear 10 categorias
+        $categories = Category::factory(10)->create();
+
         // Crear 10 juegos
         Game::factory(50)->create()->each(function ($game) use ($categories) {
             $game->categories()->attach($categories->random(rand(1, 3))->pluck('id')->toArray()
@@ -45,7 +48,7 @@ class DatabaseSeeder extends Seeder
             $achievement->game()->associate($games->random());
             $achievement->save();
         });
-        
+
 
     }
 }
