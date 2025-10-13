@@ -34,5 +34,7 @@ return [
             'channel' => env('SLACK_BOT_USER_DEFAULT_CHANNEL'),
         ],
     ],
-
+    'rawg' => [
+            'api_key' => env('RAWG_API_KEY'),
+        ],
 ];
