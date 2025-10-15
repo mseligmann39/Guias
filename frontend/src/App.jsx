@@ -2,6 +2,7 @@ import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import HomePage from './pages/HomePage';
 import GameDetailPage from './pages/GameDetailPage'; // <-- 1. Importa la nueva página que crearemos
+import GuideDetailPage from './pages/GuideDetailPage';
 
 function App() {
   return (
@@ -13,6 +14,8 @@ function App() {
       <Route path="/games/:id" element={<GameDetailPage />} />
 
       {/* Aquí podrías añadir más rutas en el futuro */}
+      <Route path="/guides/:id" element={<GuideDetailPage />} /> 
+
     </Routes>
   );
 }
