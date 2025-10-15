@@ -17,7 +17,7 @@ function HomePage() {
     axios.get(guidesURL)
       .then(response => {
         // Por ahora, tomaremos las primeras 4 como "populares"
-        setPopularGuides(response.data.slice(0, 4));
+        setPopularGuides(response.data.slice(0, 6));
         setIsLoading(false);
       })
       .catch(error => {
