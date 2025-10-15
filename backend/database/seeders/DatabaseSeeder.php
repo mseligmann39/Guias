@@ -25,7 +25,7 @@ class DatabaseSeeder extends Seeder
         ]);
 
         // 2. Crear 10 usuarios normales.
-        $users = User::factory(10)->create();
+        $users = User::factory(100)->create();
 
         // 3. Llama a tu comando para importar los juegos.
         $this->command->info('Importando datos de juegos reales...');
@@ -36,10 +36,12 @@ class DatabaseSeeder extends Seeder
 
         // 5. Ahora sí, crea las guías usando las variables que ya existen.
         if ($games->isNotEmpty()) { // Nos aseguramos de que hay juegos antes de crear guías
-            Guide::factory(40)->create([
-                'game_id' => $games->random()->id,
-                'user_id' => $users->random()->id,
-            ]);
+
+            Guide::factory(200)->make()->each(function ($guide) use ($users, $games) {
+                $guide->user_id = $users->random()->id;
+                $guide->game_id = $games->random()->id; // <-- Esto se ejecuta en CADA iteración
+                $guide->save();
+            });
 
             // Creamos también una guía con nuestro usuario admin
             Guide::factory()->create([
