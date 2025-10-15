@@ -1,0 +1,45 @@
+.hero-section {
+  display: flex; /* Usamos flexbox para centrar el contenido */
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 6rem 2rem; /* Espaciado generoso para que respire */
+  background-color: var(--color-background); /* Podrías añadir un 'background-image' sutil aquí */
+  min-height: 40vh; /* Altura mínima para que ocupe una buena porción de la pantalla */
+}
+
+.hero-content {
+  max-width: 800px; /* Ancho máximo para el contenido, para que no se estire demasiado en pantallas grandes */
+}
+
+.hero-title {
+  font-family: var(--font-heading);
+  font-size: 3.5rem; /* Tamaño de fuente grande y llamativo */
+  font-weight: 900; /* O el peso que corresponda a la fuente 'Black' */
+  margin-bottom: 1rem;
+  line-height: 1.1; /* Ajuste de interlineado */
+  color: var(--color-text-primary);
+}
+
+.hero-slogan {
+  font-size: 1.25rem;
+  color: var(--color-text-secondary);
+  margin-bottom: 2.5rem;
+}
+
+.hero-cta-button {
+  background-color: var(--color-primary);
+  color: var(--color-text-primary);
+  border: none;
+  padding: 1rem 2.5rem;
+  border-radius: 4px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.hero-cta-button:hover {
+  transform: scale(1.05); /* Efecto de escalado sutil al pasar el ratón */
+  box-shadow: 0 0 15px rgba(231, 0, 0, 0.5); /* Sutil brillo rojo */
+}
