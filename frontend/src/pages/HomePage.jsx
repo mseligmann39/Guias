@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import Header from '../components/layout/Header';
-import GameCard from '../components/GameCard'; // Reutilizamos el GameCard que ya tenías
-import './HomePage.css'; // Crearemos este archivo para los estilos
+import './HomePage.css'; 
 import Card from '../components/ui/Card';
 
 function HomePage() {
@@ -35,9 +34,9 @@ function HomePage() {
       game.title.toLowerCase().includes(searchTerm.toLowerCase())
     );
     setFilteredGames(results);
-  }, [searchTerm, games]); // Se ejecuta si 'searchTerm' o 'games' cambian
+  }, [searchTerm, games]); 
 
-  // --- RENDERIZADO ---
+  // --- Renderizado ---
 
   return (
     <>

@@ -1,0 +1,82 @@
+{
+  "folders": [{ "path": "backend" }, { "path": "frontend" }],
+  "settings": {
+    "terminal.integrated.splitCwd": "inherited"
+  },
+  "tasks": {
+    "version": "2.0.0",
+    "tasks": [
+      {
+        "label": "Backend: Laravel",
+        "type": "shell",
+        "command": "php artisan serve",
+        "options": {
+          "cwd": "${workspaceFolder:backend}"
+        },
+        "presentation": {
+          "group": "backend",
+          "panel": "dedicated",
+          "reveal": "always"
+        },
+        "problemMatcher": []
+      },
+      {
+        "label": "Backend: Shell",
+        "type": "shell",
+        "command": "",
+        "options": {
+          "cwd": "${workspaceFolder:backend}"
+        },
+        "presentation": {
+          "group": "backend",
+          "panel": "new",
+          "reveal": "always"
+        },
+        "problemMatcher": []
+      },
+      {
+        "label": "Frontend: React",
+        "type": "shell",
+        "command": "npm run dev",
+        "options": {
+          "cwd": "${workspaceFolder:frontend}"
+        },
+        "presentation": {
+          "group": "frontend",
+          "panel": "dedicated",
+          "reveal": "always"
+        },
+        "problemMatcher": []
+      },
+      {
+        "label": "Frontend: Shell",
+        "type": "shell",
+        "command": "",
+        "options": {
+          "cwd": "${workspaceFolder:frontend}"
+        },
+        "presentation": {
+          "group": "frontend",
+          "panel": "new",
+          "reveal": "always"
+        },
+        "problemMatcher": []
+      },
+      {
+        "label": "Start All",
+        "dependsOn": [
+          "Backend: Laravel",
+          "Backend: Shell",
+          "Frontend: React",
+          "Frontend: Shell"
+        ],
+        "dependsOrder": "parallel",
+        "group": {
+          "kind": "build",
+          "isDefault": true
+        },
+        "problemMatcher": []
+      }
+    ]
+  }
+}

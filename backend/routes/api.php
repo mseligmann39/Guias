@@ -8,14 +8,13 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 // Rutas de Autenticación (ya existentes)
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';
 
 // Rutas Públicas (Cualquiera puede verlas)
 Route::apiResource('games', GameController::class)->only(['index', 'show']);
 Route::apiResource('categories', CategoryController::class)->only(['index', 'show']);
 Route::apiResource('guides', GuideController::class)->only(['index', 'show']);
 Route::apiResource('achievements', AchievementController::class)->only(['index', 'show']);
-// Puedes añadir aquí las rutas para ver guías y logros si quieres que sean públicas
 
 // Rutas Protegidas (Solo para usuarios autenticados)
 Route::middleware(['auth:sanctum'])->group(function () {
