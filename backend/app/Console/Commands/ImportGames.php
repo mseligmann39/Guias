@@ -37,6 +37,8 @@ class ImportGames extends Command
 
         $gamesData = $response->json()['results'];
 
+      /*   dd($gamesData); */
+
         foreach ($gamesData as $gameData) {
             $detailsResponse = Http::get("https://api.rawg.io/api/games/{$gameData['slug']}", ['key' => $apiKey]);
 
