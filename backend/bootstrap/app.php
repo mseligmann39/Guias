@@ -10,19 +10,15 @@ return Application::configure(basePath: dirname(__DIR__))
         api: __DIR__.'/../routes/api.php',
         commands: __DIR__.'/../routes/console.php',
         health: '/up',
+        then: function () {
+            // Carga las rutas de autenticación definidas en routes/auth.php
+            require base_path('routes/auth.php');
+        }
+        // --- FIN DE LA ADICIÓN ---
     )
     ->withMiddleware(function (Middleware $middleware) {
-        $middleware->alias([
-            'verified' => \App\Http\Middleware\EnsureEmailIsVerified::class,
-        ]);
-        $middleware->alias([
-        'admin' => \App\Http\Middleware\IsAdmin::class,
-    ]);
-
-    $middleware->api(append: [
-        \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
-    ]);
-})
-    ->withExceptions(function (Exceptions $exceptions): void {
-        //
+        // ... (tu configuración de middleware)
+    })
+    ->withExceptions(function (Exceptions $exceptions) {
+        // ...
     })->create();

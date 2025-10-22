@@ -1,10 +1,10 @@
 // src/pages/LoginPage.jsx
 import { useState } from 'react';
-import { useAuth } from '../context/auth.js';
+import { useAuth } from '../context/auth';
 import { useNavigate, Link } from 'react-router-dom';
 
 function LoginPage() {
-    const [loginId, setloginId] = useState('');
+    const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState(null);
     const { login } = useAuth();
@@ -14,7 +14,7 @@ function LoginPage() {
         e.preventDefault();
         setError(null);
         try {
-            await login(loginId, password);
+            await login(email, password);
             navigate('/'); // Redirige a la página principal después del login
         } catch (err) {
             setError("Credenciales incorrectas. Por favor, inténtalo de nuevo.");
@@ -26,8 +26,8 @@ function LoginPage() {
         <div>
             <h1>Iniciar Sesión</h1>
             <form onSubmit={handleSubmit}>
-                {/* Input para el loginId */}
-                <input type="loginId" value={loginId} onChange={e => setloginId(e.target.value)} placeholder="Usuario" required />
+                {/* Input para el email */}
+                <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="Usuario" required />
                 {/* Input para la contraseña */}
                 <input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="Contraseña" required />
 

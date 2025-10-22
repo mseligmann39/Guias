@@ -11,69 +11,46 @@ use Illuminate\Validation\ValidationException;
 
 class LoginRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
     public function authorize(): bool
     {
         return true;
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
-     */
     public function rules(): array
     {
+        // Ya estaba correcto: espera 'email'
         return [
-            'login_id' => ['required', 'string'],
+            'email' => ['required', 'string', 'email'],
             'password' => ['required', 'string'],
+            'remember' => ['boolean'],
         ];
     }
 
-    /**
-     * Attempt to authenticate the request's credentials.
-     *
-     * @throws \Illuminate\Validation\ValidationException
-     */
-   public function authenticate(): void
+    public function authenticate(): void
     {
         $this->ensureIsNotRateLimited();
 
-        // 1. Determina si 'login_id' es un email o un username
-        $loginValue = $this->input('login_id');
-        // Usamos filter_var para validar si es un email. La columna 'name' es la de username.
-        $loginField = filter_var($loginValue, FILTER_VALIDATE_EMAIL) ? 'email' : 'name';
-
-        // 2. Prepara las credenciales dinámicamente
+        // --- CORRECCIÓN CLAVE AQUÍ ---
+        // Usamos directamente el campo 'email' validado
         $credentials = [
-            $loginField => $loginValue,
+            'email' => $this->input('email'),
             'password' => $this->input('password'),
         ];
 
-        // 3. Intenta autenticar usando las credenciales preparadas
         if (! Auth::attempt($credentials, $this->boolean('remember'))) {
             RateLimiter::hit($this->throttleKey());
 
-            // Si falla, lanzamos la excepción asociada al campo 'login_id'
+            // Asociamos el error al campo 'email'
             throw ValidationException::withMessages([
-    // CORREGIDO:
-    'login_id' => trans('auth.throttle', [ 
-        'seconds' => $seconds,
-        'minutes' => ceil($seconds / 60),
-    ]),
-]);
+                'email' => trans('auth.failed'), // Mensaje genérico de credenciales incorrectas
+            ]);
         }
 
-        // 4. Si la autenticación es exitosa, limpiamos el limitador
+        // --- FIN CORRECCIÓN ---
+
         RateLimiter::clear($this->throttleKey());
     }
-    /**
-     * Ensure the login request is not rate limited.
-     *
-     * @throws \Illuminate\Validation\ValidationException
-     */
+
     public function ensureIsNotRateLimited(): void
     {
         if (! RateLimiter::tooManyAttempts($this->throttleKey(), 5)) {
@@ -84,19 +61,20 @@ class LoginRequest extends FormRequest
 
         $seconds = RateLimiter::availableIn($this->throttleKey());
 
+        // --- CORRECCIÓN CLAVE AQUÍ ---
+        // Asociamos el error de throttle al campo 'email'
         throw ValidationException::withMessages([
-    'login_id' => trans('auth.throttle', [ // <-- CORREGIDO
-        'seconds' => $seconds,
-        'minutes' => ceil($seconds / 60),
-    ]),
-]);
+            'email' => trans('auth.throttle', [
+                'seconds' => $seconds,
+                'minutes' => ceil($seconds / 60),
+            ]),
+        ]);
+        // --- FIN CORRECCIÓN ---
     }
 
-    /**
-     * Get the rate limiting throttle key for the request.
-     */
     public function throttleKey(): string
     {
+        // Usamos el email (en minúsculas) y la IP para limitar intentos
         return Str::transliterate(Str::lower($this->input('email')).'|'.$this->ip());
     }
 }

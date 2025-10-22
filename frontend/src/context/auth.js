@@ -1,7 +1,14 @@
-import { createContext, useContext } from "react";
+// src/context/auth.js
+import { useContext } from "react";
+// Importa el contexto real desde donde se define el Provider
+import { AuthContext } from "./AuthContext"; // Ajusta la ruta si es necesario
 
-// 1. Definir el contexto
-export const AuthContext = createContext();
-
-// 2. Definir el hook para consumir el contexto
-export const useAuth = () => useContext(AuthContext);
+// El hook consume el contexto importado
+export const useAuth = () => {
+    const context = useContext(AuthContext);
+    if (context === undefined) {
+        // Es buena práctica añadir un error si se usa fuera del Provider
+        throw new Error('useAuth must be used within an AuthProvider');
+    }
+    return context;
+};
