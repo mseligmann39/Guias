@@ -1,6 +1,6 @@
 // src/pages/RegisterPage.jsx
 import { useState } from 'react';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../context/auth.js';
 import { useNavigate, Link } from 'react-router-dom';
 
 function RegisterPage() {

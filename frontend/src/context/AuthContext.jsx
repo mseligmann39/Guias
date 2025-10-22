@@ -1,81 +1,99 @@
-import { createContext, useContext, useState } from "react";
+import { useState } from "react";
 import axios from "axios";
+// Importamos el contexto que definimos en el otro archivo
+import { AuthContext } from "./auth.js";
 
-const AuthContext = createContext();
+// 1. La URL base de la API (ej: http://127.0.0.1:8000/api)
+const apiBaseUrl = (
+  import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8000/api"
+).replace(/\/$/, ""); // Quita la barra final si existe
+
+// 2. La URL base del backend (ej: http://127.0.0.1:8000)
+// Usaremos esto SOLO para la cookie CSRF
+const backendBaseUrl = apiBaseUrl.replace("/api", ""); // Da "http://127.0.0.1:8000"
+
+// Configuración por defecto de Axios:
 axios.defaults.withCredentials = true;
-axios.defaults.baseURL = import.meta.env.VITE_API_BASE_URL;
+axios.defaults.baseURL = apiBaseUrl; // <-- Todo usará /api por defecto
+
+console.log("Configurando Axios con BaseURL (API):", apiBaseUrl);
+console.log("URL de Backend (para CSRF):", backendBaseUrl);
+
+// Esta es ahora la ÚNICA exportación del archivo
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
-  console.log(
-    "Configurando Axios con BaseURL:",
-    import.meta.env.VITE_API_BASE_URL
-  );
+  const [user, setUser] = useState(null); // Función separada para la cookie
+
+  const getCsrfToken = async () => {
+    try {
+      // Llama a la URL de backend (sin /api) para la cookie
+      await axios.get(`${backendBaseUrl}/sanctum/csrf-cookie`);
+    } catch (error) {
+      console.error("Error al obtener la cookie CSRF:", error); // Si esto falla (404, 403), el login/register fallará con 419.
+      throw new Error(
+        "No se pudo obtener la cookie CSRF. ¿El backend está corriendo y CORS está bien configurado?"
+      );
+    }
+  };
 
   const login = async (loginId, password) => {
-    console.log("Axios baseURL en login:", axios.defaults.baseURL);
-
     try {
-      // 1. Obtener cookie
-      await axios.get(
-        `${import.meta.env.VITE_API_BASE_URL.replace(
-          "/api/",
-          ""
-        )}/sanctum/csrf-cookie`
-      );
+      // 1. Obtener cookie (de la URL web)
+      await getCsrfToken(); // 2. Intentar Login (usa la baseURL /api)
 
-      // 2. Intentar Login
       await axios.post("/login", {
-  login_id: loginId, // <-- CORREGIDO
-  password,
-});
+        // Llama a /api/login
+        login_id: loginId,
+        password,
+      }); // 3. Obtener datos del usuario (usa la baseURL /api)
 
-      // 3. Si el login tuvo éxito, obtener datos del usuario
-      const { data } = await axios.get("/user");
+      const { data } = await axios.get("/user"); // Llama a /api/user
       setUser(data);
-      
     } catch (error) {
-      // 4. Si algo falla (ej. contraseña incorrecta 422, o 401)
       console.error("Error en el login:", error);
-      // Aquí podrías manejar el estado de error para mostrarlo en la UI
-      setUser(null); // Asegurarse de que el usuario no esté seteado
-      throw error; // Lanzar el error para que el componente (LoginPage) lo atrape
+      setUser(null);
+      throw error;
     }
   };
 
   const register = async (name, email, password, password_confirmation) => {
-    await axios.get(
-        `${import.meta.env.VITE_API_BASE_URL.replace(
-          "/api/",
-          ""
-        )}/sanctum/csrf-cookie`
-      );
-    await axios.post("/register", {
-      name,
-      email,
-      password,
-      password_confirmation,
-    });
-
-    // Después del registro, hacemos login para obtener los datos
-    await login(email, password);
-  };
-  const logout = async () => {
     try {
-      await axios.post("/logout");
+      // 1. Obtener cookie (de la URL web)
+      await getCsrfToken(); // 2. Registrar (usa la baseURL /api)
+      await axios.post("/register", {
+        // Llama a /api/register
+        name,
+        email,
+        password,
+        password_confirmation,
+      }); // 3. Hacemos login (que ya obtiene el usuario)
+
+      await login(email, password);
     } catch (error) {
-      console.error("Error al cerrar sesión:", error);
-    } finally {
-      setUser(null); // Siempre quitamos al usuario del estado, incluso si falla el logout en backend
+      console.error("Error en el registro:", error);
+      setUser(null);
+      throw error;
     }
   };
 
-  // Asegúrate de añadir `logout` al valor del Provider
+  const logout = async () => {
+    try {
+      // 1. Obtener cookie (de la URL web)
+      await getCsrfToken(); // 2. Logout (usa la baseURL /api)
+      await axios.post("/logout"); // Llama a /api/logout
+    } catch (error) {
+      console.error("Error al cerrar sesión:", error);
+    } finally {
+      setUser(null);
+    }
+  };
+
   return (
+    // Usamos el AuthContext importado
     <AuthContext.Provider value={{ user, login, register, logout }}>
-      {children}
+       {children} {" "}
     </AuthContext.Provider>
   );
 };
 
-// Hook personalizado para usar el contexto fácilmente en otros componentes
-export const useAuth = () => useContext(AuthContext);
+// Ya no hay 'export const useAuth' aquí.
+// La única exportación es 'AuthProvider'.
