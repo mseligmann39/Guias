@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
 
 function LoginPage() {
-    const [email, setEmail] = useState('');
+    const [loginId, setloginId] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState(null);
     const { login } = useAuth();
@@ -14,7 +14,7 @@ function LoginPage() {
         e.preventDefault();
         setError(null);
         try {
-            await login(email, password);
+            await login(loginId, password);
             navigate('/'); // Redirige a la página principal después del login
         } catch (err) {
             setError("Credenciales incorrectas. Por favor, inténtalo de nuevo.");
@@ -26,8 +26,8 @@ function LoginPage() {
         <div>
             <h1>Iniciar Sesión</h1>
             <form onSubmit={handleSubmit}>
-                {/* Input para el email */}
-                <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="Email" required />
+                {/* Input para el loginId */}
+                <input type="loginId" value={loginId} onChange={e => setloginId(e.target.value)} placeholder="Usuario" required />
                 {/* Input para la contraseña */}
                 <input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="Contraseña" required />
 

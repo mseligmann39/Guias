@@ -2,26 +2,53 @@ import { createContext, useContext, useState } from "react";
 import axios from "axios";
 
 const AuthContext = createContext();
-
+axios.defaults.withCredentials = true;
+axios.defaults.baseURL = import.meta.env.VITE_API_BASE_URL;
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  axios.defaults.withCredentials = true;
-  axios.defaults.baseURL = import.meta.env.VITE_API_BASE_URL;
+  console.log(
+    "Configurando Axios con BaseURL:",
+    import.meta.env.VITE_API_BASE_URL
+  );
 
-  const login = async (email, password) => {
-    await axios.get("sanctum/csrf-cookie");
+  const login = async (loginId, password) => {
+    console.log("Axios baseURL en login:", axios.defaults.baseURL);
 
-    await axios.post("/login", {
-      email,
-      password,
-    });
+    try {
+      // 1. Obtener cookie
+      await axios.get(
+        `${import.meta.env.VITE_API_BASE_URL.replace(
+          "/api/",
+          ""
+        )}/sanctum/csrf-cookie`
+      );
 
-    const { data } = await axios.get("/api/user");
-    setUser(data);
+      // 2. Intentar Login
+      await axios.post("/login", {
+  login_id: loginId, // <-- CORREGIDO
+  password,
+});
+
+      // 3. Si el login tuvo éxito, obtener datos del usuario
+      const { data } = await axios.get("/user");
+      setUser(data);
+      
+    } catch (error) {
+      // 4. Si algo falla (ej. contraseña incorrecta 422, o 401)
+      console.error("Error en el login:", error);
+      // Aquí podrías manejar el estado de error para mostrarlo en la UI
+      setUser(null); // Asegurarse de que el usuario no esté seteado
+      throw error; // Lanzar el error para que el componente (LoginPage) lo atrape
+    }
   };
 
   const register = async (name, email, password, password_confirmation) => {
-    await axios.get("/sanctum/csrf-cookie");
+    await axios.get(
+        `${import.meta.env.VITE_API_BASE_URL.replace(
+          "/api/",
+          ""
+        )}/sanctum/csrf-cookie`
+      );
     await axios.post("/register", {
       name,
       email,

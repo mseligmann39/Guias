@@ -18,9 +18,9 @@ class DatabaseSeeder extends Seeder
     {
         // 1. Crea tu usuario administrador y guárdalo en una variable.
         $admin = User::factory()->create([
-            'name' => 'admin',
-            'email' => 'admin@example.com',
-            'password' => Hash::make('admin'), // Es mejor usar Hash::make()
+            'name' => 'admin.maxi.2001',
+            'email' => 'admin.maxi.2001@example.com',
+            'password' => Hash::make('admin.maxi.2001'), // Es mejor usar Hash::make()
             'is_admin' => true,
         ]);
 
