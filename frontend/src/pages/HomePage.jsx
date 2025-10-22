@@ -42,6 +42,7 @@ function HomePage() {
     <>
       <Header />
       <main className="homepage-main">
+  
         <div className="search-container">
           <input
             type="text"

@@ -1,9 +1,21 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate} from "react-router-dom";
 import "./Header.css";
 import logo from "../../assets/logo.png";
+import { useAuth } from "../../context/AuthContext";
+
 
 function Header() {
+
+const { user, logout } = useAuth(); // Obtén el usuario y la función logout
+
+    const navigate = useNavigate();
+
+    const handleLogout = async () => {
+        await logout();
+        navigate('/'); // Opcional: redirige al home después del logout
+    };
+
   return (
     <header className="main-header">
       <div className="logo-container">
@@ -11,18 +23,20 @@ function Header() {
           <img src={logo} alt="Logo" className="logo-img" />
         </Link>
       </div>
-      {/* <nav className='main=nav'>
-                <ul>
-                    <li><Link to='/guides'>Guias</Link></li>
-                    <li><Link to='/games'>Juegos</Link></li>
-                    <li><Link to='/about'>Sobre nosotros</Link></li>
-                    <li><Link to='/contact'>Contacto</Link></li>
-                </ul>
-            </nav> */}
-
-      <div className="user-actions">
-        <button className="login-button">Iniciar sesión</button>
-      </div>
+      <nav>
+                {user ? (
+                    // Si el usuario existe (está logueado)
+                    <>
+                        <span>Bienvenido, {user.name}!</span>
+                        <button onClick={handleLogout} className="logout-button">Cerrar Sesión</button>
+                    </>
+                ) : (
+                    // Si el usuario es null (no está logueado)
+                    <>
+                        <Link to="/login">Iniciar Sesión</Link>
+                    </>
+                )}
+            </nav>
     </header>
   );
 }
