@@ -1,42 +1,33 @@
-// src/pages/LoginPage.jsx
 import { useState } from 'react';
 import { useAuth } from '../context/auth';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 function LoginPage() {
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [error, setError] = useState(null);
-    const { login } = useAuth();
-    const navigate = useNavigate();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState(null);
+  const { login } = useAuth();
+  const navigate = useNavigate();
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        setError(null);
-        try {
-            await login(email, password);
-            navigate('/'); // Redirige a la página principal después del login
-        } catch (err) {
-            setError("Credenciales incorrectas. Por favor, inténtalo de nuevo.");
-            console.error(err);
-        }
-    };
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError(null);
+    try {
+      await login(email, password);
+      navigate('/');
+    } catch (err) {
+      setError("Error al iniciar sesión.");
+    }
+  };
 
-    return (
-        <div>
-            <h1>Iniciar Sesión</h1>
-            <form onSubmit={handleSubmit}>
-                {/* Input para el email */}
-                <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="Usuario" required />
-                {/* Input para la contraseña */}
-                <input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="Contraseña" required />
-
-                {error && <p style={{color: 'red'}}>{error}</p>}
-
-                <button type="submit">Login</button>
-            </form>
-            <p>¿No tienes una cuenta? <Link to="/register">Regístrate aquí</Link></p>
-        </div>
-    );
+  return (
+    <form onSubmit={handleSubmit}>
+      <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="Email" required />
+      <input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="Contraseña" required />
+      {error && <p style={{color: 'red'}}>{error}</p>}
+      <button type="submit">Iniciar sesión</button>
+    </form>
+  );
 }
+
 export default LoginPage;

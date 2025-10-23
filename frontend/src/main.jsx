@@ -1,16 +1,16 @@
-import { StrictMode } from 'react'; // <--- Importas StrictMode directamente
-import { createRoot } from 'react-dom/client';
-import './index.css';
-import App from './App.jsx';
-import { BrowserRouter } from 'react-router-dom';
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import App from './App';
 import { AuthProvider } from './context/AuthContext';
+import { BrowserRouter } from 'react-router-dom';
+import './index.css'; // si usas estilos globales
 
-createRoot(document.getElementById('root')).render(
-  <StrictMode> {/* <--- ¡Solución! Lo usamos sin el prefijo "React." */}
+ReactDOM.createRoot(document.getElementById('root')).render(
+  <React.StrictMode>
     <BrowserRouter>
       <AuthProvider>
         <App />
       </AuthProvider>
     </BrowserRouter>
-  </StrictMode>, // <--- ¡Solución!
+  </React.StrictMode>
 );

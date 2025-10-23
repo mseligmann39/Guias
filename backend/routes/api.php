@@ -9,6 +9,10 @@ use Illuminate\Support\Facades\Route;
 // Importa el middleware
 use Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful;
 
+
+Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
+    return $request->user();
+});
 // ¡Elimina esta línea de aquí! Las rutas de auth NO van en la API.
 // require __DIR__ . '/auth.php'; 
 
@@ -25,9 +29,6 @@ Route::middleware([EnsureFrontendRequestsAreStateful::class])->group(function ()
     Route::middleware(['auth:sanctum'])->group(function () {
 
         // Obtener información del usuario actual
-        Route::get('/user', function (Request $request) {
-            return $request->user();
-        });
 
         // Rutas solo para Administradores
         Route::middleware(['admin'])->group(function () {
