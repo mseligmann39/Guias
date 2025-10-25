@@ -1,7 +1,7 @@
 import React from "react";
 import { Link, useNavigate} from "react-router-dom";
 import "./Header.css";
-import logo from "../../assets/logo.png";
+import MainLogo from "./MainLogo";
 import { useAuth } from "../../context/auth";
 
 
@@ -18,11 +18,7 @@ const { user, logout } = useAuth(); // Obtén el usuario y la función logout
 
   return (
     <header className="main-header">
-      <div className="logo-container">
-        <Link to="/" className="logo">
-          <img src={logo} alt="Logo" className="logo-img" />
-        </Link>
-      </div>
+      <MainLogo/>
       <nav>
                 {user ? (
                     // Si el usuario existe (está logueado)

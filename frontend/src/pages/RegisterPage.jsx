@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { useAuth } from '../context/auth';
 import { useNavigate, Link } from 'react-router-dom';
+import MainLogo from '../components/layout/MainLogo';
+
 
 function RegisterPage() {
   const [name, setName] = useState('');
@@ -28,6 +30,8 @@ function RegisterPage() {
 
   return (
     <div>
+      
+    <MainLogo/>
       <h1>Registrarse</h1>
       <form onSubmit={handleSubmit}>
         <input type="text" value={name} onChange={e => setName(e.target.value)} placeholder="Nombre" required />
