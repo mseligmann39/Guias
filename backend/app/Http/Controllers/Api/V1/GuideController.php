@@ -57,6 +57,24 @@ class GuideController extends Controller
         return $guide->load('user', 'game');
     }
 
+    public function userGuides()
+    {
+        // Obtenemos el ID del usuario autenticado
+        $userId = Auth::id();
+
+        // Buscamos las guías donde el user_id coincida
+        // Usamos 'with' para cargar también la información del juego (Eager Loading)
+        // Ordenamos por fecha de creación descendente (opcional)
+        $guides = Guide::where('user_id', $userId)
+                       ->with('game') // Carga la relación 'game' definida en el modelo Guide
+                       ->orderBy('created_at', 'desc')
+                       ->get();
+
+        // Devolvemos las guías encontradas como JSON
+        return response()->json($guides);
+    }
+
+    
     /**
      * Actualiza una guía. Solo el autor original puede hacerlo.
      * PUT/PATCH /api/guides/{id}
