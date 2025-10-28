@@ -23,8 +23,9 @@ const { user, logout } = useAuth(); // Obtén el usuario y la función logout
                 {user ? (
                     // Si el usuario existe (está logueado)
                     <>
-                        <span>Bienvenido, {user.name}!</span>
-                        <button onClick={handleLogout} className="logout-button">Cerrar Sesión</button>
+                        <span>Bienvenido, {user.name}!</span>   
+                        <Link to="/profile">  Mi perfil  </Link>   
+                        <button onClick={handleLogout} className="logout-button">  Cerrar sesion  </button>
                     </>
                 ) : (
                     // Si el usuario es null (no está logueado)

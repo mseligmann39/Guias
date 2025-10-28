@@ -4,9 +4,11 @@ use App\Http\Controllers\Api\V1\AchievementController;
 use App\Http\Controllers\Api\V1\CategoryController;
 use App\Http\Controllers\Api\V1\GameController;
 use App\Http\Controllers\Api\V1\GuideController;
+use App\Http\Controllers\Api\V1\UserController;
 use Illuminate\Http\Request;
+
 use Illuminate\Support\Facades\Route;
-// Importa el middleware
+
 use Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful;
 
 
@@ -36,6 +38,8 @@ Route::middleware([EnsureFrontendRequestsAreStateful::class])->group(function ()
             Route::apiResource('categories', CategoryController::class)->except(['index', 'show']);
             Route::apiResource('achievements', AchievementController::class)->except(['index', 'show']);
         });
+
+        Route::get('/user/guides', [UserController::class, 'myGuides']);
 
         // Rutas para crear/editar guías (cualquier usuario autenticado)
         Route::apiResource('guides', GuideController::class)->except(['index', 'show']);
