@@ -1,48 +1,69 @@
 #root {
+  /* M ximo ancho permitido para el contenedor principal */
   max-width: 1280px;
+  /* Margen y padding para el contenedor principal */
   margin: 0 auto;
   padding: 2rem;
+  /* Alineaci n de texto para el contenedor principal */
   text-align: center;
 }
 
 .logo {
+  /* Altura del logotipo */
   height: 6em;
+  /* Padding para el logotipo */
   padding: 1.5em;
+  /* Transici n para el efecto de sombra */
   will-change: filter;
   transition: filter 300ms;
 }
+/* Efecto de sombra al pasar el rat n sobre el logotipo */
 .logo:hover {
+  /* Sombra con desenfoza */
   filter: drop-shadow(0 0 2em #646cffaa);
 }
+/* Efecto de sombra diferente para el logotipo de React */
 .logo.react:hover {
+  /* Sombra con desenfoza */
   filter: drop-shadow(0 0 2em #61dafbaa);
 }
 
+/* Animaci n para el logotipo */
 @keyframes logo-spin {
+  /* Inicio de la animaci n */
   from {
     transform: rotate(0deg);
   }
+  /* Fin de la animaci n */
   to {
     transform: rotate(360deg);
   }
 }
 
+/* Media query para habilitar la animaci n solo si el usuario no prefiere reducir el movimiento */
 @media (prefers-reduced-motion: no-preference) {
+  /* Seleccion de todos los logotipos que son de tipo "a" y que est n en segunda posici n */
   a:nth-of-type(2) .logo {
+    /* Animaci n infinita */
     animation: logo-spin infinite 20s linear;
   }
 }
 
 .card {
+  /* Padding para las tarjetas */
   padding: 2em;
 }
 
 .read-the-docs {
+  /* Color del texto para el enlace a la documentaci n */
   color: #888;
 }
 
 .game-grid {
+  /* Display grid para la cuadr cula de juegos */
   display: grid;
+  /* Plantilla de columnas autom ticas con un m nimo de 200px */
   grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  /* Espacio entre las tarjetas */
   gap: 1rem;
 }

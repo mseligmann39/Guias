@@ -1,16 +1,25 @@
 /* frontend/src/pages/ProfilePage.css */
+/**
+ * Contenedor principal de la página de perfil
+ */
 .profile-page-container {
   max-width: 900px;
   margin: 2rem auto;
   padding: 1rem;
 }
 
+/**
+ * T tulo principal de la p gina de Perfil
+ */
 .profile-page-container h1 {
   text-align: center;
   margin-bottom: 2rem;
   color: var(--color-primary);
 }
 
+/**
+ * Tarjeta que contiene informaci n del usuario
+ */
 .section-card {
   background-color: #2a2a2a;
   border: 1px solid var(--color-accent);
@@ -19,6 +28,9 @@
   margin-bottom: 2rem;
 }
 
+/**
+ * T tulo de la secci n de la tarjeta
+ */
 .section-card h2 {
   margin-top: 0;
   margin-bottom: 1rem;
@@ -26,14 +38,20 @@
   padding-bottom: 0.5rem;
 }
 
+/**
+ * Informaci n del usuario
+ */
 .profile-info p {
   margin-bottom: 0.8rem;
   font-size: 1.1rem;
 }
 
+/**
+ * Bot n para editar la informaci n del usuario
+ */
 .profile-info button {
   margin-top: 1rem;
-  /* Añade estilos a tus botones */
+  /* A ade estilos a tus botones */
   background-color: var(--color-primary);
   color: white;
   border: none;
@@ -42,6 +60,9 @@
   cursor: pointer;
 }
 
+/**
+ * Lista de gu as del usuario
+ */
 .user-guides ul {
   list-style: none;
   padding: 0;
@@ -52,6 +73,9 @@
   font-size: 1.1rem;
 }
 
+/**
+ * Enlace a la gu a
+ */
 .user-guides li a {
   color: var(--color-primary);
   text-decoration: none;
@@ -60,18 +84,27 @@
   text-decoration: underline;
 }
 
+/**
+ * Fecha de creaci n de la gu a
+ */
 .user-guides span {
-    color: var(--color-text-secondary);
-    font-size: 0.9em;
+  color: var(--color-text-secondary);
+  font-size: 0.9em;
 }
 
+/**
+ * Mensaje de estado de la gu a
+ */
 .profile-status, .error-message {
-    text-align: center;
-    padding: 2rem;
-    font-size: 1.2rem;
-    color: var(--color-text-secondary);
+  text-align: center;
+  padding: 2rem;
+  font-size: 1.2rem;
+  color: var(--color-text-secondary);
 }
 
+/**
+ * Mensaje de error
+ */
 .error-message {
-    color: #ff6b6b; /* Un rojo para errores */
+  color: #ff6b6b; /* Un rojo para errores */
 }

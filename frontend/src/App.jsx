@@ -7,6 +7,10 @@ import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import ProfilePage from './pages/ProfilePage';
 
+
+ /* Función principal de la aplicación.
+ Renderiza las rutas de la aplicación.
+ */
 function App() {
   return (
     <Routes>

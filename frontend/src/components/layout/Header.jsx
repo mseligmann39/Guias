@@ -1,41 +1,55 @@
+// Componente que representa el header principal de la aplicación
+// Importamos las librerías necesarias
 import React from "react";
-import { Link, useNavigate} from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import "./Header.css";
 import MainLogo from "./MainLogo";
 import { useAuth } from "../../context/auth";
 
-
+// Función que devuelve el componente Header
 function Header() {
 
-const { user, logout } = useAuth(); // Obtén el usuario y la función logout
+  // Obtenemos el usuario y la función logout
+  const { user, logout } = useAuth();
 
-    const navigate = useNavigate();
+  // Obtenemos la función navigate para redirigir al usuario después del logout
+  const navigate = useNavigate();
 
-    const handleLogout = async () => {
-        await logout();
-        navigate('/'); // Opcional: redirige al home después del logout
-    };
+  // Función que se encarga de cerrar la sesión
+  const handleLogout = async () => {
+    // Cerramos la sesión
+    await logout();
+
+    // Redirigimos al home después del logout
+    navigate('/');
+  };
 
   return (
     <header className="main-header">
       <MainLogo/>
       <nav>
-                {user ? (
-                    // Si el usuario existe (está logueado)
-                    <>
-                        <span>Bienvenido, {user.name}!</span>   
-                        <Link to="/profile">  Mi perfil  </Link>   
-                        <button onClick={handleLogout} className="logout-button">  Cerrar sesion  </button>
-                    </>
-                ) : (
-                    // Si el usuario es null (no está logueado)
-                    <>
-                        <Link to="/login">Iniciar Sesión</Link>
-                    </>
-                )}
-            </nav>
+        {
+          // Si el usuario existe (está logueado)
+          user ? (
+            // Mostramos el nombre del usuario y los enlaces a su perfil y para cerrar la sesión
+            <>
+              <span>Bienvenido, {user.name}!</span>
+              <Link to="/profile">  Mi perfil  </Link>
+              <button onClick={handleLogout} className="logout-button">  Cerrar sesion  </button>
+            </>
+          ) : (
+            // Si el usuario es null (no está logueado)
+            // Mostramos el enlace para iniciar sesión
+            <>
+              <Link to="/login">Iniciar Sesión</Link>
+            </>
+          )
+        }
+      </nav>
     </header>
   );
 }
 
+// Exportamos el componente Header
 export default Header;
+

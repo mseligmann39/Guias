@@ -5,7 +5,7 @@ import Header from '../components/layout/Header';
 import './GuideDetailPage.css'; // Crearemos este archivo para los estilos
 
 function GuideDetailPage() {
-  const { id } = useParams(); // Obtenemos el ID de la guía desde la URL
+  const { id } = useParams(); // Obtenemos el ID de la gu a desde la URL
   const [guide, setGuide] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -17,7 +17,7 @@ function GuideDetailPage() {
         setIsLoading(false);
       })
       .catch(error => {
-        console.error("Error al cargar la guía:", error);
+        console.error("Error al cargar la gu a:", error);
         setIsLoading(false);
       });
   }, [id]); // El efecto se vuelve a ejecutar si el ID cambia
@@ -42,6 +42,8 @@ function GuideDetailPage() {
           </div>
 
           {/* ATENCIÓN: Explicación importante sobre la siguiente línea */}
+          {/* Esta línea utiliza la propiedad "dangerouslySetInnerHTML" para renderizar el contenido HTML de la guía.
+          Esto se debe hacer con cuidado, ya que se puede inyectar código malicioso en la página */}
           <div
             className="guide-body"
             dangerouslySetInnerHTML={{ __html: guide.content }}

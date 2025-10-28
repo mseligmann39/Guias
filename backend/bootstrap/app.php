@@ -17,7 +17,6 @@ return Application::configure(basePath: dirname(__DIR__))
             // Carga las rutas de autenticación definidas en routes/auth.php
             require base_path('routes/auth.php');
         }
-        // --- FIN DE LA ADICIÓN ---
     )
     ->withMiddleware(function (Middleware $middleware) {
     $middleware->group('api', [
@@ -27,5 +26,4 @@ return Application::configure(basePath: dirname(__DIR__))
 })
 
     ->withExceptions(function (Exceptions $exceptions) {
-        // ...
     })->create();
