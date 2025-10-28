@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { useAuth } from '../context/auth'; // ✨ ¡Igual que en el Header!
-import api from '../context/api'; //
-import Header from '../components/layout/Header'; //
+import { useAuth } from '../context/auth'; 
+import api from '../context/api'; 
+import Header from '../components/layout/Header'; 
 import './ProfilePage.css'; // (Tu archivo de estilos)
 
 function ProfilePage() {
@@ -69,6 +69,7 @@ function ProfilePage() {
         </section>
         <section className="user-guides section-card">
           <h2>Mis guias ({userGuides.length})</h2>
+          {guidesLoading && <div className="profile-status">Cargando guías...</div>}
             {error && <div className="error-message">{error}</div>}
 
             {userGuides.length > 0 ? (
