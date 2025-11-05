@@ -49,6 +49,8 @@ function ProfilePage() {
         </section>
         {/* Componente que muestra las guías creadas por el usuario */}
         <UserGuides />
+
+    
       </main>
     </>
   );

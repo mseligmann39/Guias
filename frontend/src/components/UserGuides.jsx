@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import api from "../context/api";
 import { useAuth } from '../context/auth'; 
+import CreateGuideForm from "./CreateGuideForm";
 function UserGuides() {
 const { user, loading: userLoading } = useAuth();
   const [userGuides, setUserGuides] = useState([]);
@@ -50,9 +51,10 @@ const { user, loading: userLoading } = useAuth();
         ) : (
           <p>No tienes ninguna guia.</p>
         )}
-        <button onClick={() => alert("Crear guia pendiente")}>
-          Crear guia
-        </button>
+        
+            {/* Form para crear guiasÑ  */}
+
+        <CreateGuideForm/>
       </section>
     </>
   );

@@ -11,30 +11,28 @@ use Illuminate\Support\Str;
 class GuideController extends Controller
 {
     /**
-     * Muestra todas las guías. Se puede filtrar por juego.
-     * GET /api/guides o /api/guides?game_id=1
+     * Muestra todas las guías.
      */
     public function index()
     {
         if (request('game_id')) {
             return Guide::where('game_id', request('game_id'))->with('user', 'game')->get();
         }
-
-        
-       
         return Guide::with('user', 'game')->get();
     }
 
     /**
      * Almacena una nueva guía. El autor será el usuario autenticado.
-     * POST /api/guides
+     * ESTA ES LA FUNCIÓN CORRECTA PARA CREAR GUÍAS.
      */
     public function store(Request $request)
     {
+        // Esta validación ya lanza una respuesta 422 con los errores si falla,
+        // por lo que no necesitas un Validator::make() manual.
         $validatedData = $request->validate([
-            'title' => 'required|string|max:255',
+            'title' => 'required|string|max:255|unique:guides,title', // unique para evitar títulos repetidos
             'content' => 'required|string',
-            'game_id' => 'required|exists:games,id',
+            'game_id' => 'required|exists:games,id', // 'game_id' debe coincidir con tu base de datos
         ]);
 
         $guide = Guide::create([
@@ -42,42 +40,36 @@ class GuideController extends Controller
             'slug' => Str::slug($validatedData['title']),
             'content' => $validatedData['content'],
             'game_id' => $validatedData['game_id'],
-            'user_id' => Auth::id(), // ¡Importante! Asignamos el ID del usuario autenticado.
+            'user_id' => Auth::id(), // Asignamos el ID del usuario autenticado.
         ]);
 
+        // Devolvemos la guía creada con sus relaciones (usuario y juego) y un estado 201 (Created).
         return response()->json($guide->load('user', 'game'), 201);
     }
 
     /**
      * Muestra una guía específica.
-     * GET /api/guides/{id}
      */
     public function show(Guide $guide)
     {
         return $guide->load('user', 'game');
     }
 
+    /**
+     * Muestra las guías del usuario autenticado.
+     */
     public function userGuides()
     {
-        // Obtenemos el ID del usuario autenticado
         $userId = Auth::id();
-
-        // Buscamos las guías donde el user_id coincida
-        // Usamos 'with' para cargar también la información del juego (Eager Loading)
-        // Ordenamos por fecha de creación descendente (opcional)
         $guides = Guide::where('user_id', $userId)
-                       ->with('game') // Carga la relación 'game' definida en el modelo Guide
+                       ->with('game')
                        ->orderBy('created_at', 'desc')
                        ->get();
-
-        // Devolvemos las guías encontradas como JSON
         return response()->json($guides);
     }
 
-    
     /**
-     * Actualiza una guía. Solo el autor original puede hacerlo.
-     * PUT/PATCH /api/guides/{id}
+     * Actualiza una guía.
      */
     public function update(Request $request, Guide $guide)
     {
@@ -87,7 +79,7 @@ class GuideController extends Controller
         }
 
         $validatedData = $request->validate([
-            'title' => 'required|string|max:255',
+            'title' => 'required|string|max:255|unique:guides,title,' . $guide->id, // unique, pero ignora el actual
             'content' => 'required|string',
             'game_id' => 'required|exists:games,id',
         ]);
@@ -103,8 +95,7 @@ class GuideController extends Controller
     }
 
     /**
-     * Elimina una guía. Solo el autor original puede hacerlo.
-     * DELETE /api/guides/{id}
+     * Elimina una guía.
      */
     public function destroy(Guide $guide)
     {
