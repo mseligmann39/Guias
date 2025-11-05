@@ -4,10 +4,17 @@ import Header from '../components/layout/Header';
 import './HomePage.css'; 
 import Card from '../components/ui/Card';
 
+// Definir el tipo de los juegos que esperan venir de la API
+interface Game {
+  id: number | string;
+  title: string;
+  cover_image_url: string;
+}
+
 function HomePage() {
   // --- ESTADO DEL COMPONENTE ---
-  const [games, setGames] = useState([]); // Almacena la lista COMPLETA de juegos
-  const [filteredGames, setFilteredGames] = useState([]); // Almacena los juegos a MOSTRAR
+  const [games, setGames] = useState<Game[]>([]); // Almacena la lista COMPLETA de juegos
+  const [filteredGames, setFilteredGames] = useState<Game[]>([]); // Almacena los juegos a MOSTRAR
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState(''); // Almacena el texto del buscador
 
@@ -59,11 +66,11 @@ function HomePage() {
           <div className="game-grid">
             {filteredGames.map(game => (
               <Card
-      key={game.id}
-      title={game.title}
-      imageUrl={game.cover_image_url}
-      linkUrl={`/games/${game.id}`}
-    />
+                key={game.id}
+                title={game.title}
+                imageUrl={game.cover_image_url}
+                linkUrl={`/games/${game.id}`}
+              />
             ))}
           </div>
         )}

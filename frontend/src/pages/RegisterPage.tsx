@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, FormEvent } from 'react';
 import { useAuth } from '../context/auth';
 import { useNavigate, Link } from 'react-router-dom';
 import MainLogo from '../components/layout/MainLogo';
@@ -10,11 +10,11 @@ import MainLogo from '../components/layout/MainLogo';
  */
 function RegisterPage() {
   // Estados para almacenar la información del formulario
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [passwordConfirmation, setPasswordConfirmation] = useState('');
-  const [error, setError] = useState(null);
+  const [name, setName] = useState<string>('');
+  const [email, setEmail] = useState<string>('');
+  const [password, setPassword] = useState<string>('');
+  const [passwordConfirmation, setPasswordConfirmation] = useState<string>('');
+  const [error, setError] = useState<string | null>(null);
 
   // Función para obtener la función de registro del contexto
   const { register } = useAuth();
@@ -23,7 +23,7 @@ function RegisterPage() {
   const navigate = useNavigate();
 
   // Función para manejar el submit del formulario
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError(null);
     // Verificamos que las contraseñas coincidan
@@ -37,9 +37,9 @@ function RegisterPage() {
       await register(name, email, password, passwordConfirmation);
       // Si se registra con éxito, navegar a la página principal
       navigate('/');
-    } catch (err) {
+    } catch (err: any) {
       // Si hay un error, lo mostramos en la pantalla
-      setError( err + "Error al registrar. Verifica tus datos.");
+      setError( err.message + " Error al registrar. Verifica tus datos.");
     }
   };
 

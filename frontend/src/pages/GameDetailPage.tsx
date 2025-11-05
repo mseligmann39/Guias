@@ -1,36 +1,50 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom'; // useParams para leer el :id de la URL
+import { useParams, Link } from 'react-router-dom';
 import axios from 'axios';
 import Header from '../components/layout/Header';
-import './GameDetailPage.css'; // Estilos para esta página
-// Función que renderiza la página de detalles de un juego
-// Recibe un objeto game con la información del juego
+import './GameDetailPage.css';
+
+// Definición de interfaces para tipos estrictos
+interface Category {
+  id: number | string;
+  name: string;
+}
+
+interface Guide {
+  id: number | string;
+  title: string;
+}
+
+interface Game {
+  id: number | string;
+  title: string;
+  cover_image_url: string;
+  description: string;
+  categories: Category[];
+  guides: Guide[];
+}
+
 function GameDetailPage() {
-  const { id } = useParams(); // Obtenemos el ID del juego desde la URL
-  const [game, setGame] = useState(null);
+  const { id } = useParams<{ id: string }>();
+  const [game, setGame] = useState<Game | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // La URL ahora apunta a un juego específico
     const gameURL = `${import.meta.env.VITE_API_BASE_URL}games/${id}`;
 
-    // Hacemos una petición GET a la API para obtener los detalles del juego
-    axios.get(gameURL)
+    axios.get<Game>(gameURL)
       .then(response => {
-        // Actualizamos el estado con los detalles del juego
         setGame(response.data);
-        // Quitamos el estado de carga
-        setIsLoading(false);
       })
       .catch(error => {
-        // Mostramos el error en la consola
         console.error("Error al cargar los detalles del juego:", error);
-        // Quitamos el estado de carga
+        setGame(null);
+      })
+      .finally(() => {
         setIsLoading(false);
       });
-  }, [id]); // Este efecto se ejecuta cada vez que el ID de la URL cambie
+  }, [id]);
 
-  // Si el juego está cargando, mostramos un mensaje
   if (isLoading) {
     return (
       <>
@@ -40,7 +54,6 @@ function GameDetailPage() {
     );
   }
 
-  // Si no hay juego, mostramos un mensaje
   if (!game) {
     return (
       <>
@@ -50,7 +63,6 @@ function GameDetailPage() {
     );
   }
 
-  // Renderizamos la página con los detalles del juego
   return (
     <>
       <Header />
@@ -61,21 +73,23 @@ function GameDetailPage() {
         
         <div className="game-categories">
           {/* Mapeamos las categorías del juego y renderizamos una etiqueta por cada una */}
-          {game.categories.map(category => (
-            <span key={category.id} className="category-tag">{category.name}</span>
-          ))}
+          {game.categories && game.categories.length > 0 ? (
+            game.categories.map(category => (
+              <span key={category.id} className="category-tag">{category.name}</span>
+            ))
+          ) : (
+            <span className="category-tag">Sin categoría</span>
+          )}
         </div>
 
         <hr />
 
         <div className="guides-list">
           <h2>Guías para {game.title}</h2>
-          {/* Si el juego tiene guías, renderizamos una lista de enlaces a cada guía */}
-          {game.guides.length > 0 ? (
+          {game.guides && game.guides.length > 0 ? (
             <ul>
               {game.guides.map(guide => (
                 <li key={guide.id}>
-                  {/* Eventualmente este Link te llevará a la página de la guía */}
                   <Link to={`/guides/${guide.id}`}>{guide.title}</Link>
                 </li>
               ))}
@@ -90,4 +104,3 @@ function GameDetailPage() {
 }
 
 export default GameDetailPage;
-

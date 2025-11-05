@@ -7,7 +7,11 @@ import './index.css';
 
 // Esta función crea un elemento root en el DOM y renderiza el componente App
 // dentro de un proveedor de autenticación y un router para manejar las rutas de la aplicación.
-ReactDOM.createRoot(document.getElementById('root')).render(
+const rootElement = document.getElementById('root');
+if (!rootElement) {
+  throw new Error("No se encontró el elemento con id 'root'.");
+}
+ReactDOM.createRoot(rootElement).render(
   <React.StrictMode>
     <BrowserRouter>
       <AuthProvider>

@@ -1,17 +1,19 @@
 import React, { useEffect, useState } from "react";
-import api from "../context/api";
-import { useAuth } from '../context/auth'; 
+import api from "@/context/api";
+import { useAuth } from '@/context/auth'; 
 import CreateGuideForm from "./CreateGuideForm";
+import type { Guide } from '@/types';
+
 function UserGuides() {
 const { user, loading: userLoading } = useAuth();
-  const [userGuides, setUserGuides] = useState([]);
-  const [guidesLoading, setGuidesLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [userGuides, setUserGuides] = useState<Guide[]>([]);
+  const [guidesLoading, setGuidesLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
   useEffect(() => {
     // Solo intentamos cargar las guías si el usuario YA cargó y existe
     if (user) {
       api
-        .get("/api/user/guides")
+        .get<Guide[]>("/api/user/guides")
         .then((response) => {
           setUserGuides(response.data);
         })
