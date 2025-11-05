@@ -38,9 +38,9 @@ function LoginPage() {
       {/* Formulario de inicio de sesión */}
       <form onSubmit={handleSubmit}>
         {/* Input para el email */}
-        <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="Email" required />
+        <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="Email" required autoComplete="email" />
         {/* Input para la contraseña */}
-        <input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="Contraseña" required />
+        <input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="Contraseña" required autoComplete="current-password" />
         {/* Mostramos el error en la pantalla si hay uno */}
         {error && <p style={{color: 'red'}}>{error}</p>}
         {/* Botón para enviar el formulario */}

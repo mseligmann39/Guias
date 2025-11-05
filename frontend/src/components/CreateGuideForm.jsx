@@ -1,7 +1,7 @@
 // src/components/CreateGuideForm.js
 
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../context/api';
 
 const CreateGuideForm = () => {
     const [formData, setFormData] = useState({
@@ -14,14 +14,15 @@ const CreateGuideForm = () => {
     const [message, setMessage] = useState('');
     const [errors, setErrors] = useState({});
 
-    // Cargar los videojuegos para el selector
+    // Cargar los juegos para el selector
     useEffect(() => {
-        axios.get('/api/video-games') // Asegúrate de tener este endpoint en Laravel
+        api.get('/api/games')
             .then(response => {
-                setVideoGames(response.data);
+                setVideoGames(Array.isArray(response.data) ? response.data : []);
             })
             .catch(error => {
-                console.error('Error al cargar los videojuegos:', error);
+                console.error('Error al cargar los juegos:', error);
+                setVideoGames([]);
             });
     }, []);
 
@@ -39,9 +40,9 @@ const CreateGuideForm = () => {
 
         try {
             // Laravel Sanctum se encarga de la protección CSRF obteniendo una cookie primero
-            await axios.get('/sanctum/csrf-cookie');
-            
-            const response = await axios.post('/api/guides', formData);
+            await api.get('/sanctum/csrf-cookie');
+
+            const response = await api.post('/api/guides', formData);
 
             setMessage(response.data.message);
             // Limpiar el formulario
@@ -91,8 +92,8 @@ const CreateGuideForm = () => {
                     required
                 >
                     <option value="">Selecciona un videojuego</option>
-                    {videoGames.map(game => (
-                        <option key={game.id} value={game.id}>{game.name}</option>
+                    {Array.isArray(videoGames) && videoGames.map(game => (
+                        <option key={game.id} value={game.id}>{game.title ?? game.name}</option>
                     ))}
                 </select>
                 {errors.game_id && <span className="error">{errors.game_id[0]}</span>}

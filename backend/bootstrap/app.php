@@ -19,11 +19,9 @@ return Application::configure(basePath: dirname(__DIR__))
         }
     )
     ->withMiddleware(function (Middleware $middleware) {
-    $middleware->group('api', [
-        EnsureFrontendRequestsAreStateful::class,
-        SubstituteBindings::class,
-    ]);
-})
+        // Habilita la pila de middleware de API stateful para Sanctum (cookies + sesión)
+        $middleware->statefulApi();
+    })
 
     ->withExceptions(function (Exceptions $exceptions) {
     })->create();
