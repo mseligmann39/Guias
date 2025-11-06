@@ -20,8 +20,20 @@ class ImportGames extends Command
 
         // Verificamos si la API key ha sido configurada en .env y config/services.php
         if (!$apiKey) {
-            $this->error('La API Key de RAWG no está configurada. Añádela a .env y config/services.php');
-            return 1;
+            // Si no hay API key, creamos datos de prueba con factories para evitar
+            // que la aplicación quede sin juegos en desarrollo/local.
+            $this->warn('RAWG API key no configurada. Creando datos de prueba con factories...');
+
+            // Crear algunas categorías
+            $categories = \App\Models\Category::factory(8)->create();
+
+            // Crear juegos falsos y asignarles categorías aleatorias
+            $games = \App\Models\Game::factory(30)->create()->each(function ($game) use ($categories) {
+                $game->categories()->sync($categories->random(rand(1, 3))->pluck('id')->toArray());
+            });
+
+            $this->info('Datos de prueba creados.');
+            return 0;
         }
 
         $this->info("Importando 50 juegos desde RAWG...");

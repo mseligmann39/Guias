@@ -17,11 +17,15 @@ function Header() {
 
   // Función que se encarga de cerrar la sesión
   const handleLogout = async () => {
-    // Cerramos la sesión
-    await logout();
-
-    // Redirigimos al home después del logout
-    navigate('/');
+    try {
+      // Cerramos la sesión
+      await logout();
+      // Redirigimos al home después del logout
+      navigate('/');
+    } catch (error) {
+      console.error('Error en handleLogout:', error);
+      // Aquí podrías mostrar un mensaje al usuario si lo deseas
+    }
   };
 
   return (

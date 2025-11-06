@@ -64,11 +64,27 @@ const handleSubmit: React.FormEventHandler<HTMLFormElement> = async e => {
   try {
     console.log('🍪 Cookies disponibles:', document.cookie);
     console.log('📤 Enviando datos:', formData);
-    
-    const res = await api.post('/api/guides', {
-      ...formData,
-      user_id: user.id
-    });
+    // Obtener el token CSRF de la cookie y enviarlo explícitamente por si axios
+    // no lo añade automáticamente en cross-origin requests.
+    const getCookie = (name: string) => {
+      const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+      return match ? decodeURIComponent(match[2] ?? '') : null;
+    };
+    const xsrf = getCookie('XSRF-TOKEN');
+
+    const res = await api.post(
+      '/api/guides',
+      {
+        ...formData,
+        user_id: user.id,
+      },
+      {
+        withCredentials: true,
+        headers: {
+          'X-XSRF-TOKEN': xsrf || '',
+        },
+      }
+    );
     
     console.log('✅ Respuesta exitosa:', res.data);
     setMessage(res.data?.message ?? 'Guía creada exitosamente');

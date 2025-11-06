@@ -15,13 +15,11 @@ return [
     |
     */
 
-    'paths' => ['*'],
-
-    
+    'paths' => ['*', 'sanctum/csrf-cookie', 'login', 'logout', 'register'],
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => ['http://127.0.0.1:5173', 'http://localhost:5173'],
+    'allowed_origins' => ['http://127.0.0.1:5173', 'http://localhost:5173', 'http://127.0.0.1:3000', 'http://localhost:3000'],
 
     'allowed_origins_patterns' => [],
 
@@ -31,6 +29,8 @@ return [
 
     'max_age' => 0,
 
+    // For SPA authentication with Sanctum we need credentials (cookies) enabled
+    // so that the browser can store the session cookie after /sanctum/csrf-cookie.
     'supports_credentials' => true,
 
 ];

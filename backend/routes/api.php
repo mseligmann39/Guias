@@ -7,7 +7,7 @@ use App\Http\Controllers\Api\V1\GuideController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\AuthController;
+use App\Http\Controllers\Api\AuthController as ApiAuthController;
 
 
 // --- Rutas Públicas (Cualquiera puede acceder) ---
@@ -24,7 +24,15 @@ Route::apiResource('guides', GuideController::class)->only(['index', 'show']);
 Route::apiResource('achievements', AchievementController::class)->only(['index', 'show']);
 
 
-Route::post('/login', [AuthController::class, 'login']);
+// Rutas de autenticación
+Route::post('/register', [ApiAuthController::class, 'register']);
+Route::post('/login', [ApiAuthController::class, 'login']);
+
+// Rutas protegidas
+Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/logout', [ApiAuthController::class, 'logout']);
+    Route::get('/me', [ApiAuthController::class, 'me']);
+});
 
 // Ruta de debugging pública - verificar configuración de Sanctum
 Route::get('/debug-sanctum-config', function (Request $request) {

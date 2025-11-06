@@ -8,8 +8,5 @@ Route::get('/', function () {
     return ['Laravel' => app()->version()];
 });
 
-use App\Http\Controllers\AuthController;
-
-Route::post('/login', [AuthController::class, 'login']);
-Route::post('/logout', [AuthController::class, 'logout']);
-Route::post('/register', [AuthController::class, 'register']);
+// Web routes kept minimal for API-only usage. Authentication for the API
+// is handled under routes/api.php by App\Http\Controllers\Api\AuthController.
