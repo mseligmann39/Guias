@@ -48,7 +48,7 @@ Para ejecutar este proyecto en un entorno local, sigue estos pasos:
 
 ```bash
 # 1. Clona el repositorio
-git clone <URL_DEL_REPOSITORIO>
+git clone https://github.com/mseligmann39/Guias.git
 
 # 2. Navega a la carpeta del backend
 cd Guias/backend
