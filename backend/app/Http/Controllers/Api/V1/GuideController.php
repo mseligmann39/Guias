@@ -69,6 +69,18 @@ class GuideController extends Controller
     }
 
     /**
+     * Muestra las guías de un usuario específico por su ID.
+     */
+    public function guidesByUser($userId)
+    {
+        $guides = Guide::where('user_id', $userId)
+                       ->with('user', 'game')
+                       ->orderBy('created_at', 'desc')
+                       ->get();
+        return response()->json($guides);
+    }
+
+    /**
      * Actualiza una guía.
      */
     public function update(Request $request, Guide $guide)

@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import api from "@/context/api";
 import { useAuth } from '@/context/auth'; 
-import CreateGuideForm from "./CreateGuideForm";
 import type { Guide } from '@/types';
 
 function UserGuides() {
-const { user, loading: userLoading } = useAuth();
+  const navigate = useNavigate();
+  const { user, loading: userLoading } = useAuth();
   const [userGuides, setUserGuides] = useState<Guide[]>([]);
   const [guidesLoading, setGuidesLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -13,13 +14,12 @@ const { user, loading: userLoading } = useAuth();
     // Solo intentamos cargar las guías si el usuario YA cargó y existe
     if (user) {
       api
-        .get<Guide[]>("/api/user/guides")
+        .get<Guide[]>(`/api/guides/user/${user.id}`)
         .then((response) => {
           setUserGuides(response.data);
         })
         .catch((err) => {
           console.error("Error fetching user guides:", err);
-          // Este es el error 401 que estamos viendo
           setError(
             "No se pudieron cargar tus guías. (Error: " + err.message + ")"
           );
@@ -54,9 +54,12 @@ const { user, loading: userLoading } = useAuth();
           <p>No tienes ninguna guia.</p>
         )}
         
-            {/* Form para crear guiasÑ  */}
-
-        <CreateGuideForm/>
+        <button 
+          onClick={() => navigate('/guides/create')}
+          className="add-guide-button"
+        >
+          Agregar guía
+        </button>
       </section>
     </>
   );

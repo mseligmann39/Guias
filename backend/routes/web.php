@@ -1,6 +1,8 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Api\V1\GuideController;
+
 
 Route::get('/', function () {
     return ['Laravel' => app()->version()];

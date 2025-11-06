@@ -16,8 +16,10 @@ class Handler extends ExceptionHandler
                 'message' => 'Unauthenticated.'
             ], 401);
         }
-
+        return response()->json([
+            'message' => 'Unauthenticated.'
+        ], 401);
         // Para rutas web, redirigir al login (comportamiento normal)
-        return redirect()->guest(route('login'));
+       /*  return redirect()->guest(route('login')); */
     }
 }

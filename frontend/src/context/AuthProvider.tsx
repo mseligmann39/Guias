@@ -25,10 +25,9 @@ export const AuthProvider: React.FC<Props> = ({ children }) => {
   }, []);
 
   const login: AuthContextValue['login'] = async (email, password) => {
-    await api.get('/sanctum/csrf-cookie');
     const res = await api.post<{ user: User }>('/login', { email, password });
+    await api.get('/sanctum/csrf-cookie'); // ✅ Nuevo token CSRF después del login
     setUser(res.data.user);
-    return res.data;
   };
 
   const logout: AuthContextValue['logout'] = async () => {
@@ -42,15 +41,14 @@ export const AuthProvider: React.FC<Props> = ({ children }) => {
     password,
     password_confirmation
   ) => {
-    await api.get('/sanctum/csrf-cookie');
     const res = await api.post<{ user: User }>('/register', {
       name,
       email,
       password,
       password_confirmation,
     });
+    await api.get('/sanctum/csrf-cookie'); // ✅ Nuevo token CSRF después del registro
     setUser(res.data.user);
-    return res.data;
   };
 
   const value: AuthContextValue = { user, loading, login, logout, register };
