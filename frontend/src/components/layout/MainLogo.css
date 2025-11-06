@@ -1,9 +1,0 @@
-.logo-container {
-  display: flex;
-  align-items: center;
-}
-
-.logo-img {
-  width: 150px;   /* defines el ancho */
-  height: auto;   /* el alto se ajusta automáticamente */
-}

@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\V1\AchievementController;
 use App\Http\Controllers\Api\V1\CategoryController;
 use App\Http\Controllers\Api\V1\GameController;
 use App\Http\Controllers\Api\V1\GuideController;
+use App\Http\Controllers\Api\V1\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -61,8 +62,8 @@ Route::get('/debug-sanctum-config', function (Request $request) {
 
 // --- Rutas Protegidas (Requieren autenticación con Sanctum) ---
 Route::middleware('auth:sanctum')->group(function () {
-   
-   
+    // Ruta para actualizar el perfil del usuario
+    Route::put('/users/profile', [UserController::class, 'update']);
 
     // Obtener información del usuario autenticado
     Route::get('/user', function (Request $request) {

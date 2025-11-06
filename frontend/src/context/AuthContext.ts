@@ -12,6 +12,7 @@ export interface AuthContextValue {
     password: string,
     password_confirmation: string
   ) => Promise<unknown>;
+  refreshUser: () => Promise<void>;
 }
 
 export const AuthContext = createContext<AuthContextValue | undefined>(undefined);

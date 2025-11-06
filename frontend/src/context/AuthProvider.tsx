@@ -103,7 +103,25 @@ export const AuthProvider: React.FC<Props> = ({ children }) => {
     setUser(res.data.user);
   };
 
-  const value: AuthContextValue = { user, loading, login, logout, register };
+  const refreshUser: AuthContextValue['refreshUser'] = async () => {
+    try {
+      const res = await api.get<User>('/api/me');
+      setUser(res.data);
+    } catch (error) {
+      console.error('Error refreshing user:', error);
+      throw error;
+    }
+  };
+
+  const value: AuthContextValue = {
+    user,
+    loading,
+    login,
+    logout,
+    register,
+    refreshUser
+  };
+  
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 

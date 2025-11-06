@@ -33,35 +33,65 @@ function UserGuides() {
     }
   }, [user, userLoading]);
   return (
-    <>
-      <section className="user-guides section-card">
-        <h2>Mis guias ({userGuides.length})</h2>
-        {guidesLoading && (
-          <div className="profile-status">Cargando guías...</div>
-        )}
-        {error && <div className="error-message">{error}</div>}
+    <section className="bg-[#2a2a2a] border border-[var(--color-accent)] rounded-lg p-6 mb-8">
+      <h2 className="text-xl font-semibold text-[var(--color-text-primary)] mb-6 pb-2 border-b border-[var(--color-accent)]">
+        Mis guías ({userGuides.length})
+      </h2>
+      
+      {guidesLoading && (
+        <div className="text-center py-4 text-[var(--color-text-secondary)]">
+          Cargando guías...
+        </div>
+      )}
+      
+      {error && (
+        <div className="p-3 bg-red-900/30 border border-red-700 text-red-200 rounded mb-4">
+          {error}
+        </div>
+      )}
 
-        {userGuides.length > 0 ? (
-          <ul>
-            {userGuides.map((guide) => (
-              <li key={guide.id}>
-                <a href={`/guides/${guide.id}`}>{guide.title}</a>
-                <span>Para {guide.game?.title || "Juego no encontrado"} </span>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p>No tienes ninguna guia.</p>
-        )}
-        
-        <button 
-          onClick={() => navigate('/guides/create')}
-          className="add-guide-button"
-        >
-          Agregar guía
-        </button>
-      </section>
-    </>
+      {userGuides.length > 0 ? (
+        <ul className="space-y-4">
+          {userGuides.map((guide) => (
+            <li 
+              key={guide.id}
+              className="p-4 bg-[#1e1e1e] rounded-lg border border-[#3a3a3a] hover:border-[var(--color-accent)] transition-colors"
+            >
+              <a 
+                href={`/guides/${guide.id}`} 
+                className="text-[var(--color-primary)] hover:underline text-lg font-medium block mb-1"
+              >
+                {guide.title}
+              </a>
+              <p className="text-sm text-[var(--color-text-secondary)]">
+                Para {guide.game?.title || "Juego no encontrado"}
+              </p>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <div className="text-center py-6 text-[var(--color-text-secondary)]">
+          <p className="mb-4">No tienes ninguna guía publicada aún.</p>
+          <button 
+            onClick={() => navigate('/guides/create')}
+            className="px-4 py-2 bg-[var(--color-primary)] text-[var(--color-text-primary)] font-medium rounded hover:bg-opacity-90 transition-all hover:shadow-[0_0_15px_rgba(231,0,0,0.3)]"
+          >
+            Crear mi primera guía
+          </button>
+        </div>
+      )}
+      
+      {userGuides.length > 0 && (
+        <div className="mt-6 pt-4 border-t border-[var(--color-accent)]">
+          <button 
+            onClick={() => navigate('/guides/create')}
+            className="w-full sm:w-auto px-4 py-2 bg-[var(--color-primary)] text-[var(--color-text-primary)] font-medium rounded hover:bg-opacity-90 transition-all hover:shadow-[0_0_15px_rgba(231,0,0,0.3)]"
+          >
+            + Agregar nueva guía
+          </button>
+        </div>
+      )}
+    </section>
   );
 }
 

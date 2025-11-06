@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import Header from '../components/layout/Header';
-import './HomePage.css'; 
 import Card from '../components/ui/Card';
 
 // Definir el tipo de los juegos que esperan venir de la API
@@ -48,22 +47,22 @@ function HomePage() {
   return (
     <>
       <Header />
-      <main className="homepage-main">
-  
-        <div className="search-container">
+      <main className="p-8">
+
+        <div className="mb-8 text-center">
           <input
             type="text"
             placeholder="Buscar juegos por título..."
-            className="search-bar"
+            className="w-full max-w-[600px] mx-auto py-3 px-4 text-lg rounded-lg border border-[var(--color-accent)] bg-[#2a2a2a] text-[var(--color-text-primary)] focus:outline-none focus:border-[var(--color-primary)]"
             value={searchTerm}
             onChange={e => setSearchTerm(e.target.value)} // Actualiza el estado en cada tecleo
           />
         </div>
 
         {isLoading ? (
-          <p>Cargando juegos...</p>
+          <p className="text-center p-8 text-[var(--color-text-secondary)]">Cargando juegos...</p>
         ) : (
-          <div className="game-grid">
+          <div className="grid grid-cols-[repeat(auto-fill,minmax(250px,1fr))] gap-6">
             {filteredGames.map(game => (
               <Card
                 key={game.id}

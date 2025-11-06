@@ -1,6 +1,5 @@
 import React from "react";
 import Card from "../ui/Card";
-import "./GuidesSection.css";
 
 // Definimos la estructura esperada de una guía y su juego (mínima para Card).
 interface Game {
@@ -21,9 +20,9 @@ interface GuidesSectionProps {
 
 function GuidesSection({ title, guides }: GuidesSectionProps) {
   return (
-    <section className="guides-section">
-      <h2 className="section-title">{title}</h2>
-      <div className="guides-grid">
+    <section className="py-16 px-8">
+      <h2 className="text-center text-4xl mb-10 text-[var(--color-text-primary)]">{title}</h2>
+      <div className="grid grid-cols-[repeat(auto-fill,minmax(250px,1fr))] gap-6">
         {/*
           Usamos .map() para iterar sobre el array de guías.
           Por cada guía, renderizamos un componente Card, pasándole los datos necesarios.

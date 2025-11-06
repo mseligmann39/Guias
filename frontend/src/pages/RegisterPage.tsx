@@ -44,29 +44,109 @@ function RegisterPage() {
   };
 
   return (
-    <div>
-      
-      {/* Componente MainLogo */}
-      <MainLogo/>
-      {/* Título de la página */}
-      <h1>Registrarse</h1>
-      {/* Formulario de registro */}
-      <form onSubmit={handleSubmit}>
-        {/* Input para el nombre */}
-        <input type="text" value={name} onChange={e => setName(e.target.value)} placeholder="Nombre" required />
-        {/* Input para el email */}
-        <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="Email" required />
-        {/* Input para la contraseña */}
-        <input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="Contraseña" required />
-        {/* Input para confirmar la contraseña */}
-        <input type="password" value={passwordConfirmation} onChange={e => setPasswordConfirmation(e.target.value)} placeholder="Confirmar Contraseña" required />
-        {/* Mostrar el error en caso de que haya */}
-        {error && <p style={{color: 'red'}}>{error}</p>}
-        {/* Botón para enviar el formulario */}
-        <button type="submit">Registrarse</button>
-      </form>
-      {/* Enlace a la página de inicio de sesión */}
-      <p>¿Ya tienes una cuenta? <Link to="/login">Inicia sesión aquí</Link></p>
+    <div className="min-h-screen bg-[var(--color-background)] py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-md mx-auto">
+        {/* Logo centrado */}
+        <div className="flex justify-center mb-8">
+          <MainLogo/>
+        </div>
+        
+        {/* Contenedor del formulario */}
+        <div className="bg-[#2a2a2a] border border-[var(--color-accent)] rounded-lg p-8 shadow-lg">
+          <h1 className="text-3xl font-bold text-[var(--color-text-primary)] mb-6 text-center">
+            Crear Cuenta
+          </h1>
+          
+          {/* Mensaje de error */}
+          {error && (
+            <div className="p-3 bg-red-900/30 border border-red-700 text-red-200 rounded mb-6">
+              {error}
+            </div>
+          )}
+          
+          {/* Formulario de registro */}
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div>
+              <label htmlFor="name" className="block text-sm font-medium text-[var(--color-text-primary)] mb-1">
+                Nombre completo
+              </label>
+              <input
+                id="name"
+                type="text"
+                value={name}
+                onChange={e => setName(e.target.value)}
+                className="w-full p-3 border border-[var(--color-accent)] rounded bg-[#1e1e1e] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] focus:border-transparent"
+                placeholder="Tu nombre completo"
+                required
+              />
+            </div>
+            
+            <div>
+              <label htmlFor="email" className="block text-sm font-medium text-[var(--color-text-primary)] mb-1">
+                Correo electrónico
+              </label>
+              <input
+                id="email"
+                type="email"
+                value={email}
+                onChange={e => setEmail(e.target.value)}
+                className="w-full p-3 border border-[var(--color-accent)] rounded bg-[#1e1e1e] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] focus:border-transparent"
+                placeholder="tucorreo@ejemplo.com"
+                required
+              />
+            </div>
+            
+            <div>
+              <label htmlFor="password" className="block text-sm font-medium text-[var(--color-text-primary)] mb-1">
+                Contraseña
+              </label>
+              <input
+                id="password"
+                type="password"
+                value={password}
+                onChange={e => setPassword(e.target.value)}
+                className="w-full p-3 border border-[var(--color-accent)] rounded bg-[#1e1e1e] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] focus:border-transparent"
+                placeholder="••••••••"
+                required
+              />
+            </div>
+            
+            <div>
+              <label htmlFor="confirm-password" className="block text-sm font-medium text-[var(--color-text-primary)] mb-1">
+                Confirmar Contraseña
+              </label>
+              <input
+                id="confirm-password"
+                type="password"
+                value={passwordConfirmation}
+                onChange={e => setPasswordConfirmation(e.target.value)}
+                className="w-full p-3 border border-[var(--color-accent)] rounded bg-[#1e1e1e] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] focus:border-transparent"
+                placeholder="••••••••"
+                required
+              />
+            </div>
+            
+            <div>
+              <button
+                type="submit"
+                className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-[var(--color-text-primary)] bg-[var(--color-primary)] hover:bg-opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--color-primary)] transition-all duration-200 hover:shadow-[0_0_15px_rgba(231,0,0,0.3)]"
+              >
+                Crear cuenta
+              </button>
+            </div>
+            
+            <div className="text-sm text-center text-[var(--color-text-secondary)]">
+              ¿Ya tienes una cuenta?{' '}
+              <Link 
+                to="/login" 
+                className="font-medium text-[var(--color-primary)] hover:text-opacity-80 transition-colors"
+              >
+                Inicia sesión aquí
+              </Link>
+            </div>
+          </form>
+        </div>
+      </div>
     </div>
   );
 }

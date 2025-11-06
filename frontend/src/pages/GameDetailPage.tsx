@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import axios from 'axios';
 import Header from '../components/layout/Header';
-import './GameDetailPage.css';
 
 // Definición de interfaces para tipos estrictos
 interface Category {
@@ -49,7 +48,7 @@ function GameDetailPage() {
     return (
       <>
         <Header />
-        <p style={{ textAlign: 'center', padding: '2rem' }}>Cargando detalles del juego...</p>
+        <p className="text-center p-8 text-[var(--color-text-secondary)]">Cargando detalles del juego...</p>
       </>
     );
   }
@@ -58,7 +57,7 @@ function GameDetailPage() {
     return (
       <>
         <Header />
-        <p style={{ textAlign: 'center', padding: '2rem' }}>Juego no encontrado.</p>
+        <p className="text-center p-8 text-[var(--color-text-secondary)]">Juego no encontrado.</p>
       </>
     );
   }
@@ -66,36 +65,36 @@ function GameDetailPage() {
   return (
     <>
       <Header />
-      <main className="game-detail-page">
-        <h1 className="game-title">{game.title}</h1>
-        <img src={game.cover_image_url} alt={`Portada de ${game.title}`} className="game-cover" />
-        <p className="game-description">{game.description}</p>
+      <main className="max-w-[900px] my-8 mx-auto p-8 flex flex-col gap-6">
+        <h1 className="font-[var(--font-heading)] text-5xl text-center text-[var(--color-text-primary)] mb-4">{game.title}</h1>
+        <img src={game.cover_image_url} alt={`Portada de ${game.title}`} className="w-full max-w-[400px] h-auto rounded-lg mx-auto block" />
+        <p className="text-lg leading-relaxed text-[var(--color-text-secondary)] text-justify">{game.description}</p>
         
-        <div className="game-categories">
+        <div className="flex flex-wrap gap-2 justify-center my-4">
           {/* Mapeamos las categorías del juego y renderizamos una etiqueta por cada una */}
           {game.categories && game.categories.length > 0 ? (
             game.categories.map(category => (
-              <span key={category.id} className="category-tag">{category.name}</span>
+              <span key={category.id} className="bg-[var(--color-accent)] text-[var(--color-text-primary)] py-1.5 px-3 rounded-full text-sm font-bold">{category.name}</span>
             ))
           ) : (
-            <span className="category-tag">Sin categoría</span>
+            <span className="bg-[var(--color-accent)] text-[var(--color-text-primary)] py-1.5 px-3 rounded-full text-sm font-bold">Sin categoría</span>
           )}
         </div>
 
-        <hr />
+        <hr className="border-none border-t border-[var(--color-accent)] w-full my-4" />
 
-        <div className="guides-list">
-          <h2>Guías para {game.title}</h2>
+        <div className="w-full">
+          <h2 className="text-3xl mb-4 border-b-2 border-[var(--color-primary)] pb-2 text-[var(--color-text-primary)]">Guías para {game.title}</h2>
           {game.guides && game.guides.length > 0 ? (
-            <ul>
+            <ul className="list-none p-0">
               {game.guides.map(guide => (
-                <li key={guide.id}>
-                  <Link to={`/guides/${guide.id}`}>{guide.title}</Link>
+                <li key={guide.id} className="mb-3">
+                  <Link to={`/guides/${guide.id}`} className="text-[var(--color-text-secondary)] no-underline text-xl transition-colors duration-200 hover:text-[var(--color-primary)]">{guide.title}</Link>
                 </li>
               ))}
             </ul>
           ) : (
-            <p>Todavía no hay guías para este juego.</p>
+            <p className="text-[var(--color-text-secondary)]">Todavía no hay guías para este juego.</p>
           )}
         </div>
       </main>

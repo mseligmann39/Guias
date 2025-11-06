@@ -116,8 +116,8 @@ const handleSubmit: React.FormEventHandler<HTMLFormElement> = async e => {
     return (
       <>
         <Header />
-        <main className="create-guide-page-container">
-          <div className="profile-status">Cargando...</div>
+        <main className="max-w-4xl mx-auto p-6">
+          <div className="text-center text-[var(--color-text-primary)] p-8">Cargando...</div>
         </main>
       </>
     );
@@ -127,8 +127,8 @@ const handleSubmit: React.FormEventHandler<HTMLFormElement> = async e => {
     return (
       <>
         <Header />
-        <main className="create-guide-page-container">
-          <div className="error-message">
+        <main className="max-w-4xl mx-auto p-6">
+          <div className="bg-red-900/30 border border-red-700 text-red-200 p-4 rounded text-center">
             Debes estar autenticado para crear una guía. Redirigiendo...
           </div>
         </main>
@@ -139,12 +139,25 @@ const handleSubmit: React.FormEventHandler<HTMLFormElement> = async e => {
   return (
     <>
       <Header />
-      <main className="create-guide-page-container">
-        <form onSubmit={handleSubmit} className="create-guide-form">
-          <h2>Crear Nueva Guía</h2>
-          {message && <div className="success-message">{message}</div>}
-          <div>
-            <label htmlFor="title">Título:</label>
+      <main className="max-w-4xl mx-auto p-6">
+        <form onSubmit={handleSubmit} className="bg-[#2a2a2a] border border-[var(--color-accent)] rounded-lg p-8 shadow-lg">
+          <h2 className="text-3xl font-bold text-[var(--color-text-primary)] mb-6 pb-4 border-b border-[var(--color-accent)]">
+            Crear Nueva Guía
+          </h2>
+          
+          {message && (
+            <div className={`p-4 mb-6 rounded ${
+              message.includes('éxito') ? 'bg-green-900/30 border border-green-700 text-green-200' : 
+              'bg-red-900/30 border border-red-700 text-red-200'
+            }`}>
+              {message}
+            </div>
+          )}
+          
+          <div className="mb-6">
+            <label htmlFor="title" className="block text-lg font-medium text-[var(--color-text-primary)] mb-2">
+              Título de la guía:
+            </label>
             <input
               type="text"
               id="title"
@@ -152,48 +165,75 @@ const handleSubmit: React.FormEventHandler<HTMLFormElement> = async e => {
               value={formData.title}
               onChange={handleChange}
               required
+              className="w-full p-3 border border-[var(--color-accent)] rounded bg-[#1e1e1e] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] focus:border-transparent"
+              placeholder="Ej: Guía completa de The Witcher 3"
             />
-            {errors.title && <span className="error">{errors.title[0]}</span>}
+            {errors.title && (
+              <span className="text-red-400 text-sm mt-1 block">{errors.title[0]}</span>
+            )}
           </div>
-          <div>
-            <label htmlFor="game_id">Videojuego:</label>
+          
+          <div className="mb-6">
+            <label htmlFor="game_id" className="block text-lg font-medium text-[var(--color-text-primary)] mb-2">
+              Videojuego:
+            </label>
             <select
               id="game_id"
               name="game_id"
               value={formData.game_id}
               onChange={handleChange}
               required
+              className="w-full p-3 border border-[var(--color-accent)] rounded bg-[#1e1e1e] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] focus:border-transparent appearance-none"
             >
-              <option value="">Selecciona un videojuego</option>
+              <option value="" className="text-gray-500">Selecciona un videojuego</option>
               {videoGames.map(game => (
-                <option key={game.id} value={String(game.id)}>
+                <option key={game.id} value={String(game.id)} className="bg-[#2a2a2a] text-white">
                   {game.title}
                 </option>
               ))}
             </select>
             {errors.game_id && (
-              <span className="error">{errors.game_id[0]}</span>
+              <span className="text-red-400 text-sm mt-1 block">{errors.game_id[0]}</span>
             )}
           </div>
-          <div>
-            <label htmlFor="content">Contenido de la Guía:</label>
+          
+          <div className="mb-8">
+            <label htmlFor="content" className="block text-lg font-medium text-[var(--color-text-primary)] mb-2">
+              Contenido de la Guía:
+            </label>
+            <p className="text-sm text-[var(--color-text-secondary)] mb-3">
+              Usa Markdown para dar formato a tu guía. Puedes usar # para títulos, **negrita**, *cursiva*, listas con - o 1., etc.
+            </p>
             <textarea
               id="content"
               name="content"
               value={formData.content}
               onChange={handleChange}
               required
+              rows={12}
+              className="w-full p-3 border border-[var(--color-accent)] rounded bg-[#1e1e1e] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] focus:border-transparent font-mono text-sm"
+              placeholder="## Introducción\n\nEscribe aquí el contenido de tu guía..."
             />
             {errors.content && (
-              <span className="error">{errors.content[0]}</span>
+              <span className="text-red-400 text-sm mt-1 block">{errors.content[0]}</span>
             )}
           </div>
-          <div className="form-actions">
-            <button type="submit">Crear Guía</button>
-            <button type="button" onClick={() => navigate('/profile')}>
+          
+          <div className="flex justify-end gap-4 pt-4 border-t border-[var(--color-accent)]">
+            <button 
+              type="button" 
+              onClick={() => navigate('/profile')}
+              className="px-6 py-2 border border-[var(--color-accent)] text-[var(--color-text-primary)] rounded hover:bg-[#3a3a3a] transition-colors"
+            >
               Cancelar
             </button>
-          </div>
+            <button 
+              type="submit" 
+              className="px-6 py-2 bg-[var(--color-primary)] text-[var(--color-text-primary)] font-bold rounded hover:bg-opacity-90 transition-all hover:shadow-[0_0_15px_rgba(231,0,0,0.3)]"
+            >
+              Publicar Guía
+            </button>
+            </div>
         </form>
       </main>
     </>

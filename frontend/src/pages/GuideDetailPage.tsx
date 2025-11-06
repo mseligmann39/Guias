@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import axios from 'axios';
 import Header from '../components/layout/Header';
-import './GuideDetailPage.css';
 
 // Definición de tipos para la estructura de la guía esperada de la API
 interface Game {
@@ -42,7 +41,7 @@ function GuideDetailPage() {
     return (
       <>
         <Header />
-        <p className="page-status">Cargando guía...</p>
+        <p className="text-center p-8 text-xl text-[var(--color-text-secondary)]">Cargando guía...</p>
       </>
     );
   }
@@ -51,7 +50,7 @@ function GuideDetailPage() {
     return (
       <>
         <Header />
-        <p className="page-status">Guía no encontrada.</p>
+        <p className="text-center p-8 text-xl text-[var(--color-text-secondary)]">Guía no encontrada.</p>
       </>
     );
   }
@@ -59,12 +58,12 @@ function GuideDetailPage() {
   return (
     <>
       <Header />
-      <main className="guide-detail-page">
-        <article className="guide-content">
-          <h1 className="guide-title">{guide.title}</h1>
-          <div className="guide-meta">
+      <main className="max-w-[800px] my-8 mx-auto p-8">
+        <article className="bg-[#2a2a2a] rounded-lg py-8 px-12 border border-[var(--color-accent)]">
+          <h1 className="font-[var(--font-heading)] text-[2.8rem] mb-2 leading-tight text-[var(--color-text-primary)]">{guide.title}</h1>
+          <div className="mb-8 text-lg text-[var(--color-text-secondary)]">
             <span>Guía para: </span>
-            <Link to={`/games/${guide.game.id}`} className="game-link">
+            <Link to={`/games/${guide.game.id}`} className="text-[var(--color-primary)] no-underline font-bold hover:underline">
               {guide.game.title}
             </Link>
           </div>
@@ -74,7 +73,7 @@ function GuideDetailPage() {
             No lo uses si no confías en el contenido. 
           */}
           <div
-            className="guide-body"
+            className="text-lg leading-[1.7] text-[var(--color-text-secondary)] [&_h2]:font-[var(--font-heading)] [&_h2]:text-[var(--color-text-primary)] [&_h2]:mt-8 [&_h2]:mb-4 [&_h2]:border-b [&_h2]:border-[var(--color-accent)] [&_h2]:pb-2 [&_h3]:font-[var(--font-heading)] [&_h3]:text-[var(--color-text-primary)] [&_h3]:mt-8 [&_h3]:mb-4 [&_h3]:border-b [&_h3]:border-[var(--color-accent)] [&_h3]:pb-2 [&_h4]:font-[var(--font-heading)] [&_h4]:text-[var(--color-text-primary)] [&_h4]:mt-8 [&_h4]:mb-4 [&_h4]:border-b [&_h4]:border-[var(--color-accent)] [&_h4]:pb-2 [&_p]:mb-4 [&_ul]:pl-8 [&_ul]:mb-4 [&_ol]:pl-8 [&_ol]:mb-4 [&_li]:mb-2 [&_a]:text-[var(--color-primary)] [&_strong]:text-[var(--color-text-primary)]"
             dangerouslySetInnerHTML={{ __html: guide.content }}
           />
         </article>

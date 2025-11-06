@@ -2,6 +2,7 @@ export interface User {
   id: number;
   name: string;
   email: string;
+  profileIcon?: string;
 }
 
 export interface Game {

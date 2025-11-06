@@ -7,6 +7,7 @@ import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import ProfilePage from './pages/ProfilePage';
 import CreateGuidePage from './pages/CreateGuidePage';
+import EditProfilePage from './pages/EditProfilePage';
 
 
  /* Función principal de la aplicación.
@@ -21,8 +22,8 @@ function App() {
       <Route path="/guides/:id" element={<GuideDetailPage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
-      <Route path='/profile' element={<ProfilePage />}  />
-      
+      <Route path='/profile' element={<ProfilePage />} />
+      <Route path='/edit-profile' element={<EditProfilePage />} />
     </Routes>
   );
 }
