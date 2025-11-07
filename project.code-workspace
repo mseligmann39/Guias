@@ -1,8 +1,7 @@
 {
   "folders": [
     { "path": "backend", "name": "back" },
-    { "path": "frontend", "name": "front" },
-    { "path": "." }
+    { "path": "frontend", "name": "front" }
   ],
   "settings": {
     "terminal.integrated.splitCwd": "inherited",
