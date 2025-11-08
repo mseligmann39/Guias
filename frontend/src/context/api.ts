@@ -40,4 +40,35 @@ api.interceptors.request.use(
   }
 );
 
+
+
+/**
+ * Publica un nuevo comentario para una guía.
+ * @param {string|number} guideId - El ID de la guía
+ * @param {string} body - El contenido del comentario
+ * @returns {Promise} La respuesta de la API
+ */
+export const postComment = (guideId: string | number, body: string) => {
+  return api.post(`/api/guides/${guideId}/comments`, { body });
+};
+
+/**
+ * Publica o actualiza la valoración de un usuario para una guía.
+ * @param {string|number} guideId - El ID de la guía
+ * @param {number} rating - La calificación (generalmente de 1 a 5)
+ * @returns {Promise} La respuesta de la API
+ */
+export const postRating = (guideId: string | number, rating: number) => {
+  return api.post(`/api/guides/${guideId}/ratings`, { rating });
+};
+
+/**
+ * Elimina un comentario de una guía.
+ * @param {string|number} commentId - El ID del comentario a eliminar
+ * @returns {Promise} La respuesta de la API
+ */
+export const deleteComment = (commentId: string | number) => {
+  return api.delete(`/api/comments/${commentId}`);
+};
+
 export default api;

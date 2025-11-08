@@ -9,6 +9,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController as ApiAuthController;
+use App\Http\Controllers\Api\V1\RatingController;
+use App\Http\Controllers\Api\V1\CommentController;
 
 
 // --- Rutas Públicas (Cualquiera puede acceder) ---
@@ -59,6 +61,15 @@ Route::get('/debug-sanctum-config', function (Request $request) {
         'auth_user_id' => Auth::id(),
     ]);
 });
+// commentarios y rating
+Route::middleware('auth:sanctum')->group(function () {
+    // Comentarios
+    Route::post('/guides/{guide}/comments', [CommentController::class, 'store']);
+    Route::delete('/comments/{comment}', [CommentController::class, 'destroy']);
+
+    // Valoraciones
+    Route::post('/guides/{guide}/ratings', [RatingController::class, 'store']);
+});
 
 // --- Rutas Protegidas (Requieren autenticación con Sanctum) ---
 Route::middleware('auth:sanctum')->group(function () {
@@ -69,6 +80,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user', function (Request $request) {
         return $request->user();
     });
+
+    
 
     // Ruta de debugging temporal - ELIMINAR DESPUÉS
     Route::get('/debug-auth', function (Request $request) {

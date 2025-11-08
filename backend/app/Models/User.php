@@ -44,4 +44,14 @@ class User extends Authenticatable
     {
         return $this->hasMany(Guide::class);
     }
+
+    public function comments(): HasMany
+    {
+        return $this->hasMany(Comment::class);
+    }
+
+    public function ratings(): HasMany
+    {
+        return $this->hasMany(Rating::class);
+    }
 }

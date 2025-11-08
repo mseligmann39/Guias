@@ -1,30 +1,63 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import axios from 'axios';
 import Header from '../components/layout/Header';
-
-// Definición de tipos para la estructura de la guía esperada de la API
-interface Game {
-  id: number | string;
-  title: string;
+import StarRating from '@/components/StarRating';
+import CommentList from '@/components/CommentList';
+import { postComment, postRating } from '../context/api';
+import { useAuth } from '../context/AuthContext';
+import StarInput from '@/components/StarInput';
+import CommentInput from '@/components/CommentInput';
+// Definición de tipos para la estructura de la guía
+export interface User {
+  id: number;
+  name: string;
+  email: string;
 }
 
-interface Guide {
-  id: number | string;
+export interface Game {
+  id: number;
+  title: string;
+  slug: string;
+}
+
+export interface Comment {
+  id: number;
+  body: string;
+  created_at: string;
+  user: User;
+}
+
+export interface Guide {
+  id: number;
   title: string;
   content: string;
+  created_at: string;
+  updated_at: string;
+  user: User;
   game: Game;
+  comments: Comment[];
+  average_rating?: number;
+  rating_count?: number;
 }
 
 function GuideDetailPage() {
   const { id } = useParams<{ id: string }>();
+  const { user } = useAuth();
+  const isAuthenticated = !!user;
   // Inicializamos el estado con "Guide | null" para obtener tipado correcto
   const [guide, setGuide] = useState<Guide | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  // comentarios 
+  const [commentBody, setCommentBody] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
+  const [userRating, setUserRating] = useState<number | null>(null);
+  const [isRating, setIsRating] = useState(false);
 
-  useEffect(() => {
+  const fetchGuide = useCallback(() => {
     const guideURL = `${import.meta.env.VITE_API_BASE_URL}guides/${id}`;
-    axios.get<Guide>(guideURL)
+    return axios.get<Guide>(guideURL)
       .then(response => {
         setGuide(response.data);
       })
@@ -36,6 +69,20 @@ function GuideDetailPage() {
         setIsLoading(false);
       });
   }, [id]);
+
+  useEffect(() => {
+    fetchGuide();
+  }, [fetchGuide, refreshKey]);
+
+  const handleCommentPosted = () => {
+    // Increment refreshKey to trigger a refetch of the guide data
+    setRefreshKey(prev => prev + 1);
+  };
+
+  const handleRatingSubmitted = async () => {
+    // Refresh the guide data to show the updated rating
+    setRefreshKey(prev => prev + 1);
+  };
 
   if (isLoading) {
     return (
@@ -77,6 +124,33 @@ function GuideDetailPage() {
             dangerouslySetInnerHTML={{ __html: guide.content }}
           />
         </article>
+        <div className="my-4">
+          <h3 className="text-xl font-semibold mb-2 text-[var(--color-text-primary)]">Valora esta guía</h3>
+          <StarInput 
+            guideId={guide.id}
+            initialValue={userRating || 0}
+            onRatingSubmitted={handleRatingSubmitted}
+            disabled={isRating}
+          />
+          {(guide.rating_count ?? 0) > 0 && (
+            <div className="mt-2">
+              <StarRating rating={guide.average_rating || 0} count={guide.rating_count || 0} />
+            </div>
+          )}
+        </div>
+        <CommentList comments={guide.comments} />
+        <div className="mt-4">
+          {isAuthenticated ? (
+            <CommentInput 
+              guideId={guide.id}
+              onCommentPosted={handleCommentPosted} 
+            />
+          ) : (
+            <p className="text-gray-400 text-center mt-4">
+              <Link to="/login" className="text-blue-400 hover:underline">Inicia sesión</Link> para dejar un comentario
+            </p>
+          )}
+        </div>
       </main>
     </>
   );

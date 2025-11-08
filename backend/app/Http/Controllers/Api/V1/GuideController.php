@@ -50,10 +50,45 @@ class GuideController extends Controller
     /**
      * Muestra una guía específica.
      */
-    public function show(Guide $guide)
-    {
-        return $guide->load('user', 'game');
+    // ...
+public function show(string $id)
+{
+    try {
+        // Cargamos la guía con todas sus relaciones
+        $guide = Guide::with([
+            'user',          // El autor de la guía (ya lo tenías)
+            'game',          // El juego (ya lo tenías)
+            'comments.user'  // ¡NUEVO! Cargamos comentarios y el usuario de cada comentario
+        ])->findOrFail($id);
+
+        // Obtenemos los atributos "mágicos" (accessors)
+        $averageRating = $guide->average_rating;
+        $ratingCount = $guide->rating_count;
+
+        // ¡Extra! Vamos a añadir la valoración del usuario actual
+        $userRating = null;
+        if (Auth::guard('sanctum')->check()) {
+            $user = Auth::guard('sanctum')->user();
+            $rating = $guide->ratings()->where('user_id', $user->id)->first();
+            if ($rating) {
+                $userRating = $rating->rating;
+            }
+        }
+
+        // Añadimos los datos extra a la respuesta
+        // Usar una API Resource sería más elegante, pero esto es 100% funcional
+        $guideData = $guide->toArray();
+        $guideData['average_rating'] = $averageRating;
+        $guideData['rating_count'] = $ratingCount;
+        $guideData['user_rating'] = $userRating; // Será null si no está logueado o no ha votado
+
+        return response()->json($guideData);
+
+    } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+        return response()->json(['message' => 'Guide not found'], 404);
     }
+}
+// ...
 
     /**
      * Muestra las guías del usuario autenticado.

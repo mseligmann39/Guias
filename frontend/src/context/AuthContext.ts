@@ -1,9 +1,10 @@
-import { createContext } from 'react';
+import { createContext, useContext } from 'react';
 import type { User } from '@/types';
 
 export interface AuthContextValue {
   user: User | null;
   loading: boolean;
+  isAuthenticated: boolean;
   login: (email: string, password: string) => Promise<unknown>;
   logout: () => Promise<void>;
   register: (
@@ -16,3 +17,11 @@ export interface AuthContextValue {
 }
 
 export const AuthContext = createContext<AuthContextValue | undefined>(undefined);
+
+export function useAuth() {
+  const context = useContext(AuthContext);
+  if (context === undefined) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
+}
