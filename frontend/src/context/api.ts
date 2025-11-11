@@ -71,4 +71,24 @@ export const deleteComment = (commentId: string | number) => {
   return api.delete(`/api/comments/${commentId}`);
 };
 
+/**
+ * Updates the status of a guide in the user's lists.
+ * @param {string | number} guideId - The ID of the guide
+ * @param {object} status - The status to update
+ * @param {boolean} status.is_favorite - Whether the guide is marked as favorite
+ * @param {'todo'|'completed'|null} status.progress_status - The progress status of the guide
+ * @returns {Promise} The API response
+ */
+export const postGuideListStatus = (guideId: string | number, status: { is_favorite: boolean, progress_status: 'todo' | 'completed' | null }) => {
+  return api.post(`/api/guides/${guideId}/list-status`, status);
+};
+
+/**
+ * Gets all guide lists for the authenticated user.
+ * @returns {Promise} The API response containing the user's lists
+ */
+export const getUserLists = () => {
+  return api.get('/api/user/my-lists');
+};
+
 export default api;

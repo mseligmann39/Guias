@@ -32,8 +32,4 @@ class Game extends Model
         return $this->hasMany(Guide::class);
     }
 
-    public function achievements(): HasMany
-    {
-        return $this->hasMany(Achievement::class);
-    }
 }

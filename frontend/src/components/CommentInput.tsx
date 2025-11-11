@@ -37,21 +37,29 @@ const CommentInput: React.FC<CommentInputProps> = ({ guideId, onCommentPosted })
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col mt-4">
-      <textarea
-        className="border border-gray-300 rounded-lg p-2 mb-2 resize-none"
-        placeholder="Escribe tu comentario..."
-        value={comment}
-        onChange={(e) => setComment(e.target.value)}
-      />
-      <div className="flex flex-col">
-        {error && <div className="text-red-500 text-sm mb-2">{error}</div>}
+    <form onSubmit={handleSubmit} className="mt-6">
+      <div className="mb-4">
+        <h3 className="text-lg font-medium text-[var(--color-text-primary)] mb-2">Deja un comentario</h3>
+        <textarea
+          className="w-full bg-[var(--color-bg-secondary)] text-[var(--color-text-secondary)] border border-[var(--color-border)] rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)] focus:border-transparent transition-colors min-h-[100px] resize-none"
+          placeholder="Escribe tu comentario..."
+          value={comment}
+          onChange={(e) => {
+            setComment(e.target.value);
+            if (error) setError(null);
+          }}
+        />
+      </div>
+      <div className="flex flex-col space-y-2">
+        {error && <div className="text-red-400 text-sm">{error}</div>}
         <button 
-          className={`bg-yellow-400 text-white rounded-lg px-4 py-2 ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}`} 
+          className={`bg-[var(--color-accent)] hover:bg-[var(--color-accent-hover)] text-[var(--color-bg)] font-medium py-2 px-4 rounded-lg transition-colors ${
+            isSubmitting ? 'opacity-50 cursor-not-allowed' : ''
+          }`} 
           type="submit"
           disabled={isSubmitting}
         >
-          {isSubmitting ? 'Enviando...' : 'Enviar'}
+          {isSubmitting ? 'Enviando...' : 'Publicar comentario'}
         </button>
       </div>
     </form>

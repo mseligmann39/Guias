@@ -60,7 +60,7 @@ class GameController extends Controller
     public function show(Game $game)
     {
         // Cargamos todas las relaciones que hemos definido en el modelo
-        return $game->load('categories', 'guides', 'achievements');
+        return $game->load('categories', 'guides');
     }
 
     /**

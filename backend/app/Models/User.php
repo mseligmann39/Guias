@@ -54,4 +54,11 @@ class User extends Authenticatable
     {
         return $this->hasMany(Rating::class);
     }
+
+    public function savedGuides()
+{
+    return $this->belongsToMany(Guide::class)
+                ->withPivot('is_favorite', 'progress_status') // ¡Importante!
+                ->withTimestamps();
+}
 }

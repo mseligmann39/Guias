@@ -74,13 +74,29 @@ public function show(string $id)
                 $userRating = $rating->rating;
             }
         }
+        $userListStatus = [
+            'is_favorite' => false,
+            'progress_status' => null,
+        ];
+
+    if (Auth::guard('sanctum')->check()) {
+                $user = Auth::guard('sanctum')->user();
+                
+                $entry = $user->savedGuides()->where('guide_id', $guide->id)->first(); // <-- CAMBIADO
+                
+                if ($entry) {
+            $userListStatus['is_favorite'] = $entry->pivot->is_favorite;
+            $userListStatus['progress_status'] = $entry->pivot->progress_status;
+        }
+    }
 
         // Añadimos los datos extra a la respuesta
         // Usar una API Resource sería más elegante, pero esto es 100% funcional
         $guideData = $guide->toArray();
         $guideData['average_rating'] = $averageRating;
         $guideData['rating_count'] = $ratingCount;
-        $guideData['user_rating'] = $userRating; // Será null si no está logueado o no ha votado
+        $guideData['user_rating'] = $userRating; 
+        $guideData['list_status'] = $userListStatus;
 
         return response()->json($guideData);
 

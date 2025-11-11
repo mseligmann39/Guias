@@ -47,4 +47,10 @@ class Guide extends Model
     {
         return $this->ratings()->count();
     }
+public function users()
+{
+    return $this->belongsToMany(User::class)
+                ->withPivot('is_favorite', 'progress_status') // ¡Importante!
+                ->withTimestamps();
+}
 }

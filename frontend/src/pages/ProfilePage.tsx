@@ -2,6 +2,7 @@ import { useAuth } from '../context/auth';
 import { Link } from 'react-router-dom';
 import Header from '../components/layout/Header'; 
 import UserGuides from '../components/UserGuides';
+import UserLists from '../components/UserList';
 
 /**
  * Componente de la página de perfil del usuario.
@@ -78,6 +79,8 @@ function ProfilePage() {
         {/* Componente que muestra las guías creadas por el usuario */}
         <UserGuides />
 
+        {/* Componente que muestra las listas del usuario (favoritos, por hacer, completados) */}
+        <UserLists />
     
       </main>
     </>
