@@ -133,13 +133,24 @@ function GuideDetailPage() {
           </div>
 
           <div className="mb-8 text-lg text-[var(--color-text-secondary)]">
-            <span>Guía para: </span>
-            <Link
-              to={`/games/${guide.game.id}`}
-              className="text-[var(--color-primary)] no-underline font-bold hover:underline"
-            >
-              {guide.game.title}
-            </Link>
+            <div className="mb-2">
+              <span>Guía para: </span>
+              <Link
+                to={`/games/${guide.game.id}`}
+                className="text-[var(--color-primary)] no-underline font-bold hover:underline"
+              >
+                {guide.game.title}
+              </Link>
+            </div>
+            <div>
+              <span>Autor: </span>
+              <Link
+                to={`/profile/${guide.user.id}`}
+                className="text-[var(--color-primary)] no-underline hover:underline"
+              >
+                {guide.user.name}
+              </Link>
+            </div>
           </div>
           {/* 
             ATENCIÓN: Esta línea utiliza "dangerouslySetInnerHTML" 

@@ -11,6 +11,7 @@ use App\Http\Controllers\Api\AuthController as ApiAuthController;
 use App\Http\Controllers\Api\V1\RatingController;
 use App\Http\Controllers\Api\V1\CommentController;
 use App\Http\Controllers\Api\V1\UserListController;
+use App\Http\Controllers\Api\V1\SearchController;
 
 /*
 |--------------------------------------------------------------------------
@@ -29,6 +30,8 @@ Route::post('/login', [ApiAuthController::class, 'login']);
 Route::apiResource('games', GameController::class)->only(['index', 'show']);
 Route::apiResource('categories', CategoryController::class)->only(['index', 'show']);
 Route::apiResource('guides', GuideController::class)->only(['index', 'show']);
+
+Route::get('/search', [SearchController::class, 'index']);
 
 // Guías por usuario
 Route::get('/guides/user/{userId}', [GuideController::class, 'guidesByUser']);

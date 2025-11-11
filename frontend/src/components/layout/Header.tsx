@@ -4,6 +4,7 @@ import React from "react";
 import { Link, useNavigate } from "react-router-dom";
 import MainLogo from "./MainLogo";
 import { useAuth } from "../../context/auth";
+import SearchBar from "../ui/SearchBar";
 
 // Función que devuelve el componente Header
 function Header() {
@@ -30,6 +31,7 @@ function Header() {
   return (
     <header className="flex justify-between items-center py-4 px-8 bg-[var(--color-background)] border-b border-[var(--color-accent)] w-full box-border">
       <MainLogo/>
+      <SearchBar/>
       <nav className="flex items-center gap-6">
         {
           // Si el usuario existe (está logueado)

@@ -91,4 +91,34 @@ export const getUserLists = () => {
   return api.get('/api/user/my-lists');
 };
 
+// --- Tipos para los nuevos filtros ---
+interface GuideFilterParams {
+  page?: number;
+  game_id?: string | number;
+  category_id?: string | number;
+  sort?: 'newest' | 'rating_desc';
+}
+
+/**
+ * Obtiene una lista paginada de guías, con filtros y ordenación.
+ * @param {GuideFilterParams} params - Parámetros de filtrado y paginación
+ * @returns {Promise} La respuesta de la API con las guías
+ */
+export const getGuides = (params: GuideFilterParams) => {
+  return api.get('/api/guides', { params });
+};
+
+/**
+ * Realiza una búsqueda global.
+ * @param {string} query - El término de búsqueda
+ * @returns {Promise} La respuesta de la API con los resultados de búsqueda
+ */
+export const searchGlobal = (query: string) => {
+  return api.get('/api/search', { params: { q: query } });
+};
+
+export const getGuidesByUserId = (userId: string | number) => {
+  return api.get(`/api/guides/user/${userId}`);
+};
+
 export default api;

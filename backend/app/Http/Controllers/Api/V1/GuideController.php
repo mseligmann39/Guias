@@ -13,13 +13,49 @@ class GuideController extends Controller
     /**
      * Muestra todas las guías.
      */
-    public function index()
-    {
-        if (request('game_id')) {
-            return Guide::where('game_id', request('game_id'))->with('user', 'game')->get();
-        }
-        return Guide::with('user', 'game')->get();
+    public function index(Request $request)
+{
+    // Empezamos la consulta con Eager Loading (buena práctica)
+    $query = Guide::query()->with('user', 'game');
+
+    // --- 1. FILTRADO ---
+
+    // a) Filtrar por Juego (ya lo tenías, ahora mejorado)
+    if ($request->has('game_id')) {
+        $query->where('game_id', $request->game_id);
     }
+
+    // b) ¡NUEVO! Filtrar por Categoría
+    // Esto es un filtro anidado: Guías -> (donde el) Juego -> (tiene una) Categoría
+    if ($request->has('category_id')) {
+        // Asumo que tu modelo Game tiene una relación 'categories'
+        $query->whereHas('game.categories', function ($q) use ($request) {
+            $q->where('categories.id', $request->category_id);
+        });
+    }
+
+    // --- 2. ORDENACIÓN ---
+
+    // 'newest' (más nuevas) será el orden por defecto
+    $sort = $request->input('sort', 'newest'); 
+
+    if ($sort === 'rating_desc') {
+        // ¡NUEVO! Ordenar por "mejor valoradas"
+        // Cargamos la media de valoraciones ('ratings_avg_rating' es el nombre por defecto)
+        // y ordenamos por ella.
+        $query->withAvg('ratings', 'rating')
+              ->orderByDesc('ratings_avg_rating');
+    } else {
+        // Por defecto, o si es 'newest'
+        $query->orderByDesc('created_at');
+    }
+
+    // --- 3. PAGINACIÓN ---
+
+    // Usar paginación es vital para el rendimiento
+    // Devolverá 15 guías por página
+    return $query->paginate(15);
+}
 
     /**
      * Almacena una nueva guía. El autor será el usuario autenticado.

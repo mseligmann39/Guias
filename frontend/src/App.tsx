@@ -8,7 +8,7 @@ import RegisterPage from './pages/RegisterPage';
 import ProfilePage from './pages/ProfilePage';
 import CreateGuidePage from './pages/CreateGuidePage';
 import EditProfilePage from './pages/EditProfilePage';
-
+import UserPublicProfile from './pages/UserPublicProfile';
 
  /* Función principal de la aplicación.
  Renderiza las rutas de la aplicación.
@@ -24,6 +24,7 @@ function App() {
       <Route path="/register" element={<RegisterPage />} />
       <Route path='/profile' element={<ProfilePage />} />
       <Route path='/edit-profile' element={<EditProfilePage />} />
+      <Route path="/profile/:userId" element={<UserPublicProfile />} />
     </Routes>
   );
 }
