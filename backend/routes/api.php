@@ -71,6 +71,11 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/my-lists', [UserListController::class, 'index']);
     });
 
+    Route::put('/guides/{guide}', [GuideController::class, 'update']);
+
+    // NUEVA RUTA: Para eliminar una guía
+    Route::delete('/guides/{guide}', [GuideController::class, 'destroy']);
+
     // Listas de usuario
     Route::post('/guides/{guide}/list-status', [UserListController::class, 'update']);
 

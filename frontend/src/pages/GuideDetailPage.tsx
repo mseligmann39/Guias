@@ -60,7 +60,7 @@ function GuideDetailPage() {
   const [refreshKey, setRefreshKey] = useState(0);
   const [userRating, setUserRating] = useState<number | null>(null);
   const [isRating, setIsRating] = useState(false);
-
+  const isAuthor = user && guide?.user && user.id === guide.user.id;
   const fetchGuide = useCallback(() => {
     const guideURL = `${import.meta.env.VITE_API_BASE_URL}guides/${id}`;
     return api
@@ -161,7 +161,16 @@ function GuideDetailPage() {
             className="text-lg leading-[1.7] text-[var(--color-text-secondary)] [&_h2]:font-[var(--font-heading)] [&_h2]:text-[var(--color-text-primary)] [&_h2]:mt-8 [&_h2]:mb-4 [&_h2]:border-b [&_h2]:border-[var(--color-accent)] [&_h2]:pb-2 [&_h3]:font-[var(--font-heading)] [&_h3]:text-[var(--color-text-primary)] [&_h3]:mt-8 [&_h3]:mb-4 [&_h3]:border-b [&_h3]:border-[var(--color-accent)] [&_h3]:pb-2 [&_h4]:font-[var(--font-heading)] [&_h4]:text-[var(--color-text-primary)] [&_h4]:mt-8 [&_h4]:mb-4 [&_h4]:border-b [&_h4]:border-[var(--color-accent)] [&_h4]:pb-2 [&_p]:mb-4 [&_ul]:pl-8 [&_ul]:mb-4 [&_ol]:pl-8 [&_ol]:mb-4 [&_li]:mb-2 [&_a]:text-[var(--color-primary)] [&_strong]:text-[var(--color-text-primary)]"
             dangerouslySetInnerHTML={{ __html: guide.content }}
           />
+          {isAuthor && (
+              <Link
+                to={`/guides/edit/${guide.id}`}
+                className="mt-4 sm:mt-0 px-5 py-2 bg-gray-800 text-white font-medium rounded hover:bg-gray-700 transition-colors mr-2 mb-4"
+              >
+                Editar Guía
+              </Link>
+            )}
         </article>
+        
 
         <div className="my-4">
           <h3 className="text-xl font-semibold mb-2 text-[var(--color-text-primary)]">

@@ -172,38 +172,45 @@ public function show(string $id)
      */
     public function update(Request $request, Guide $guide)
     {
-        // Verificamos que el usuario que intenta actualizar es el autor de la guía.
-        if ($guide->user_id !== Auth::id()) {
-            return response()->json(['message' => 'No autorizado'], 403);
+        // 1. Autorización: ¿Puede el usuario actual actualizar esta guía?
+        //    (Asegúrate de tener un Policy 'GuidePolicy' o haz la comprobación manual)
+        if ($request->user()->id !== $guide->user_id) {
+             abort(403, 'No autorizado para actualizar esta guía.');
         }
+        // O mejor, usando un Policy:
+        // Gate::authorize('update', $guide); 
 
-        $validatedData = $request->validate([
-            'title' => 'required|string|max:255|unique:guides,title,' . $guide->id, // unique, pero ignora el actual
+        // 2. Validación (ajusta según tus reglas)
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
             'content' => 'required|string',
             'game_id' => 'required|exists:games,id',
         ]);
 
-        $guide->update([
-            'title' => $validatedData['title'],
-            'slug' => Str::slug($validatedData['title']),
-            'content' => $validatedData['content'],
-            'game_id' => $validatedData['game_id'],
-        ]);
+        // 3. Actualización
+        // (Asegúrate de que estos campos estén en el $fillable de tu modelo Guide)
+        $guide->update($validated);
 
+        // 4. Respuesta
         return response()->json($guide->load('user', 'game'));
     }
 
     /**
      * Elimina una guía.
      */
-    public function destroy(Guide $guide)
+    public function destroy(Request $request, Guide $guide)
     {
-        if ($guide->user_id !== Auth::id()) {
-            return response()->json(['message' => 'No autorizado'], 403);
+        // 1. Autorización
+        if ($request->user()->id !== $guide->user_id) {
+             abort(403, 'No autorizado para eliminar esta guía.');
         }
+        // O mejor, usando un Policy:
+        // Gate::authorize('delete', $guide);
 
+        // 2. Eliminación
         $guide->delete();
 
+        // 3. Respuesta (204 No Content es estándar para un DELETE exitoso)
         return response()->json(null, 204);
     }
 

@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom"; // Importa Link
 import api from "@/context/api";
 import { useAuth } from '@/context/auth'; 
 import type { Guide } from '@/types';
+// No necesitas otro Link, ya estaba importado arriba
 
 function UserGuides() {
   const navigate = useNavigate();
@@ -10,8 +11,8 @@ function UserGuides() {
   const [userGuides, setUserGuides] = useState<Guide[]>([]);
   const [guidesLoading, setGuidesLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+
   useEffect(() => {
-    // Solo intentamos cargar las guías si el usuario YA cargó y existe
     if (user) {
       api
         .get<Guide[]>(`/api/guides/user/${user.id}`)
@@ -28,10 +29,35 @@ function UserGuides() {
           setGuidesLoading(false);
         });
     } else if (!userLoading) {
-      // Si el usuario terminó de cargar y NO existe (es null)
       setGuidesLoading(false);
     }
   }, [user, userLoading]);
+
+  // --- NUEVA FUNCIÓN ---
+  // Manejador para eliminar una guía
+  const handleDelete = (guideId: number) => {
+    // 1. Confirmación: ¡Importante!
+    if (!window.confirm("¿Estás seguro de que quieres eliminar esta guía? Esta acción no se puede deshacer.")) {
+      return;
+    }
+
+    // 2. Llamada a la API
+    api
+      .delete(`/api/guides/${guideId}`)
+      .then(() => {
+        // 3. Actualizar el estado local para reflejar el cambio
+        setUserGuides((prevGuides) =>
+          prevGuides.filter((guide) => guide.id !== guideId)
+        );
+      })
+      .catch((err) => {
+        console.error("Error deleting guide:", err);
+        // Podrías usar el estado de 'error' principal o uno específico
+        alert("Error al eliminar la guía: " + (err.response?.data?.message || err.message));
+      });
+  };
+  // --- FIN NUEVA FUNCIÓN ---
+
   return (
     <section className="bg-[#2a2a2a] border border-[var(--color-accent)] rounded-lg p-6 mb-8">
       <h2 className="text-xl font-semibold text-[var(--color-text-primary)] mb-6 pb-2 border-b border-[var(--color-accent)]">
@@ -53,20 +79,41 @@ function UserGuides() {
       {userGuides.length > 0 ? (
         <ul className="space-y-4">
           {userGuides.map((guide) => (
+            // --- INICIO DE MODIFICACIÓN ---
             <li 
               key={guide.id}
-              className="p-4 bg-[#1e1e1e] rounded-lg border border-[#3a3a3a] hover:border-[var(--color-accent)] transition-colors"
+              className="flex flex-col sm:flex-row justify-between sm:items-center p-4 bg-[#1e1e1e] rounded-lg border border-[#3a3a3a] "
             >
-              <a 
-                href={`/guides/${guide.id}`} 
-                className="text-[var(--color-primary)] hover:underline text-lg font-medium block mb-1"
-              >
-                {guide.title}
-              </a>
-              <p className="text-sm text-[var(--color-text-secondary)]">
-                Para {guide.game?.title || "Juego no encontrado"}
-              </p>
+              {/* Contenedor de Información */}
+              <div>
+                <Link 
+                  to={`/guides/${guide.id}`} 
+                  className="text-[var(--color-primary)] hover:underline text-lg font-medium block mb-1"
+                >
+                  {guide.title}
+                </Link>
+                <p className="text-sm text-[var(--color-text-secondary)]">
+                  Para {guide.game?.title || "Juego no encontrado"}
+                </p>
+              </div>
+
+              {/* Contenedor de Acciones */}
+              <div className="flex space-x-2 mt-3 sm:mt-0">
+                <Link
+                  to={`/guides/edit/${guide.id}`}
+                  className="px-3 py-1 text-sm font-medium bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+                >
+                  Editar
+                </Link>
+                <button
+                  onClick={() => handleDelete(guide.id)}
+                  className="px-3 py-1 text-sm font-medium bg-red-600 text-white rounded hover:bg-red-700 transition-colors"
+                >
+                  Eliminar
+                </button>
+              </div>
             </li>
+            // --- FIN DE MODIFICACIÓN ---
           ))}
         </ul>
       ) : (

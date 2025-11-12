@@ -76,11 +76,14 @@ function ProfilePage() {
             </div>
           </div>
         </section>
+
+         {/* Componente que muestra las listas del usuario (favoritos, por hacer, completados) */}
+        <UserLists />
+        
         {/* Componente que muestra las guías creadas por el usuario */}
         <UserGuides />
 
-        {/* Componente que muestra las listas del usuario (favoritos, por hacer, completados) */}
-        <UserLists />
+       
     
       </main>
     </>
