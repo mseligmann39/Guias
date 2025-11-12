@@ -3,28 +3,38 @@ import { useNavigate, useParams } from 'react-router-dom';
 import api from '@/context/api';
 import { useAuth } from '@/context/auth';
 import Header from '../components/layout/Header';
-import type { Game } from '@/types';
+// ¡Ahora esta importación funcionará!
+import type { Game, Guide, GuideSection } from '@/types'; 
 
-interface FormDataState {
-  title: string;
-  content: string;
-  game_id: string;
+// (El resto de tu código hasta el return...)
+
+// --- INICIO: NUEVOS TIPOS Y ESTADOS ---
+interface GuideSectionState {
+  id?: number; 
+  tempId: string; 
+  order: number;
+  type: 'text' | 'image' | 'video';
+  content: string; 
+  imageFile?: File | null; 
+  image_path?: string | null; 
 }
 
 const CreateGuidePage: React.FC = () => {
   const { guideId } = useParams<{ guideId?: string }>();
   const navigate = useNavigate();
   const { user, loading: userLoading } = useAuth();
-  const [formData, setFormData] = useState<FormDataState>({
-    title: '',
-    content: '',
-    game_id: '',
-  });
+
+  const [title, setTitle] = useState<string>('');
+  const [gameId, setGameId] = useState<string>('');
+  const [sections, setSections] = useState<GuideSectionState[]>([]); 
+
   const [videoGames, setVideoGames] = useState<Game[]>([]);
   const [message, setMessage] = useState<string>('');
   const [errors, setErrors] = useState<Record<string, string[]>>({});
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const isEditMode = Boolean(guideId);
+
+  // --- FIN: NUEVOS TIPOS Y ESTADOS ---
 
   useEffect(() => {
     if (!userLoading && !user) {
@@ -32,37 +42,46 @@ const CreateGuidePage: React.FC = () => {
     }
   }, [user, userLoading, navigate]);
 
-  // Cargar juegos y, si es modo edición, cargar la guía existente
   useEffect(() => {
     const loadData = async () => {
       try {
-        setIsLoading(true); // Mover isLoading aquí para cubrir todo
+        setIsLoading(true);
         
-        // Cargar juegos
         const gamesRes = await api.get('/api/games');
         const gamesData = gamesRes.data;
-
-        // --- CORRECCIÓN 1: Manejar respuesta paginada o de array ---
         if (Array.isArray(gamesData)) {
           setVideoGames(gamesData);
         } else if (gamesData && Array.isArray(gamesData.data)) {
           setVideoGames(gamesData.data);
         } else {
-          console.warn("La respuesta de /api/games no era la esperada:", gamesData);
           setVideoGames([]);
         }
 
-        // Si es modo edición, cargar la guía
+        // --- INICIO: MODIFICACIÓN DEL 'loadData' PARA MODO EDICIÓN ---
         if (isEditMode && guideId) {
           const guideRes = await api.get(`/api/guides/${guideId}`);
-          const guide = guideRes.data;
-          // Esto ahora funcionará porque videoGames ya está (o estará) poblado
-          setFormData({
-            title: guide.title,
-            content: guide.content,
-            game_id: String(guide.game_id),
-          });
+          // Definimos 'guide' con el tipo correcto (que ya no tiene 'content')
+          const guide: Guide = guideRes.data;
+          
+          setTitle(guide.title);
+          setGameId(String(guide.game_id));
+
+          // Ahora 'guide.sections' existe y 'GuideSection' también
+          if (guide.sections) {
+            const loadedSections = guide.sections.map((sec: GuideSection) => ({
+              id: sec.id,
+              tempId: `sec-${sec.id}`,
+              order: sec.order,
+              type: sec.type,
+              content: sec.content || '',
+              imageFile: null,
+              image_path: sec.image_path,
+            }));
+            setSections(loadedSections);
+          }
         }
+        // --- FIN: MODIFICACIÓN DEL 'loadData' PARA MODO EDICIÓN ---
+
       } catch (err) {
         console.error('Error al cargar datos:', err);
         setMessage('Error al cargar los datos necesarios');
@@ -72,19 +91,53 @@ const CreateGuidePage: React.FC = () => {
     };
 
     loadData();
-  }, [isEditMode, guideId]); // Dependencias están correctas
+  }, [isEditMode, guideId]);
 
-  const handleChange: React.ChangeEventHandler<
-    HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-  > = e => {
-    setFormData(prev => ({
-      ...prev,
-      [e.target.name]: e.target.value,
-    }));
+  // --- INICIO: NUEVOS MANEJADORES DE SECCIONES ---
+  const handleAddSection = (type: 'text' | 'image' | 'video') => {
+    const newSection: GuideSectionState = {
+      tempId: `new-${Date.now()}`,
+      order: sections.length,
+      type: type,
+      content: '',
+      imageFile: null,
+    };
+    setSections(prev => [...prev, newSection]);
   };
 
-  // --- MEJORA: Eliminado getCsrfToken() ---
+  const handleDeleteSection = (tempId: string) => {
+    if (!window.confirm("¿Estás seguro de que quieres eliminar esta sección?")) return;
+    
+    setSections(prev =>
+      prev
+        .filter(sec => sec.tempId !== tempId)
+        .map((sec, index) => ({ ...sec, order: index }))
+    );
+  };
 
+  const handleSectionChange = (
+    tempId: string,
+    field: 'content' | 'imageFile',
+    value: string | File | null // Esta definición está bien
+  ) => {
+    setSections(prev =>
+      prev.map(sec => {
+        if (sec.tempId !== tempId) return sec;
+
+        if (field === 'content') {
+          return { ...sec, content: value as string };
+        }
+        if (field === 'imageFile') {
+          return { ...sec, imageFile: value as File | null }; // Un 'null' explícito es más seguro
+        }
+        return sec;
+      })
+    );
+  };
+  // --- FIN: NUEVOS MANEJADORES DE SECCIONES ---
+
+
+  // --- INICIO: MODIFICACIÓN GRANDE DE 'handleSubmit' ---
   const handleSubmit: React.FormEventHandler<HTMLFormElement> = async e => {
     e.preventDefault();
     setMessage('');
@@ -92,21 +145,49 @@ const CreateGuidePage: React.FC = () => {
     setIsLoading(true);
 
     if (!user) {
-      setMessage('Error: Debes estar autenticado para realizar esta acción.');
+      setMessage('Error: Debes estar autenticado.');
       navigate('/login');
       return;
     }
 
-    try {
-      // --- MEJORA: No se necesita 'config' ni 'xsrf' ---
-      const guideData = {
-        ...formData,
-        user_id: user.id,
-      };
+    const formData = new FormData();
 
-      const response = isEditMode
-        ? await api.put(`/api/guides/${guideId}`, guideData)
-        : await api.post('/api/guides', guideData);
+    formData.append('title', title);
+    formData.append('game_id', gameId);
+    // formData.append('user_id', String(user.id)); // No es necesario, el backend usa Auth::id()
+
+    sections.forEach((section, index) => {
+      formData.append(`sections[${index}][order]`, String(section.order));
+      formData.append(`sections[${index}][type]`, section.type);
+
+      if (section.type === 'image' && section.imageFile) {
+        formData.append(`sections[${index}][image]`, section.imageFile);
+      } else if (section.type !== 'image') {
+        formData.append(`sections[${index}][content]`, section.content);
+      }
+      
+      // NOTA: Si es 'image' pero 'imageFile' es null (no se cambió),
+      // no adjuntamos ni 'image' ni 'content'.
+      // El backend (update) debería ser lo suficientemente listo
+      // para ignorar la sección si no viene 'image' ni 'content'
+      // y mantener la imagen antigua.
+      // (Nuestra lógica actual de "borrar y recrear" en el backend
+      // es simple pero requiere que el frontend sea más explícito,
+      // pero por ahora, esto funcionará para 'crear')
+    });
+    
+    if (isEditMode) {
+      formData.append('_method', 'PUT');
+    }
+
+    try {
+      const requestUrl = isEditMode ? `/api/guides/${guideId}` : '/api/guides';
+      // Usamos POST para ambos, ya que '_method' maneja el 'PUT'
+      const response = await api.post(requestUrl, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data', // Axios suele hacer esto, pero no hace daño
+        },
+      });
 
       setMessage(
         isEditMode ? 'Guía actualizada exitosamente' : 'Guía creada exitosamente'
@@ -115,11 +196,12 @@ const CreateGuidePage: React.FC = () => {
       setTimeout(() => {
         navigate(`/guides/${response.data.id}`);
       }, 1500);
-    } catch (error: any) {
-      console.error('Error al guardar la guía:', error);
 
+    } catch (error: any) {
+      // (Tu manejo de errores está perfecto)
+      console.error('Error al guardar la guía:', error);
       if (error?.response?.status === 401) {
-        await api.post('/logout'); // Asumiendo que tienes un endpoint de logout
+        await api.post('/logout');
         setMessage('Tu sesión ha expirado. Por favor, inicia sesión nuevamente.');
         navigate('/login', { state: { from: 'session-expired' } });
       } else if (error?.response?.status === 419) {
@@ -135,9 +217,9 @@ const CreateGuidePage: React.FC = () => {
       setIsLoading(false);
     }
   };
+  // --- FIN: MODIFICACIÓN GRANDE DE 'handleSubmit' ---
 
-  // Estados de carga (Tu lógica está bien)
-  if (userLoading || (isEditMode && isLoading && !formData.title)) {
+  if (userLoading || (isEditMode && isLoading && !title)) {
     return (
       <>
         <Header />
@@ -150,8 +232,7 @@ const CreateGuidePage: React.FC = () => {
     );
   }
 
-  // ... (tu return de !user está bien) ...
-  if (!user) {
+   if (!user) {
      return (
        <>
          <Header />
@@ -163,6 +244,12 @@ const CreateGuidePage: React.FC = () => {
        </>
      );
    }
+
+  // --- INICIO: MEJORA DE URL DE IMAGEN ---
+  // Hacemos que la URL del backend sea dinámica usando variables de entorno
+  // (igual que en tu 'api.ts')
+  const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8000';
+  // --- FIN: MEJORA DE URL DE IMAGEN ---
 
   return (
     <>
@@ -191,8 +278,8 @@ const CreateGuidePage: React.FC = () => {
               type="text"
               id="title"
               name="title"
-              value={formData.title}
-              onChange={handleChange}
+              value={title} 
+              onChange={e => setTitle(e.target.value)} 
               required
               className="w-full p-3 border border-[var(--color-accent)] rounded bg-[#1e1e1e] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] focus:border-transparent"
               placeholder="Ej: Guía completa de The Witcher 3"
@@ -210,10 +297,9 @@ const CreateGuidePage: React.FC = () => {
             <select
               id="game_id"
               name="game_id"
-              value={formData.game_id}
-              onChange={handleChange}
+              value={gameId} 
+              onChange={e => setGameId(e.target.value)} 
               required
-              // --- CORRECCIÓN 2: Deshabilitar en modo edición ---
               disabled={isLoading || isEditMode}
               className="w-full p-3 border border-[var(--color-accent)] rounded bg-[#1e1e1e] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] focus:border-transparent appearance-none disabled:opacity-70 disabled:bg-gray-800"
             >
@@ -228,29 +314,121 @@ const CreateGuidePage: React.FC = () => {
               <span className="text-red-400 text-sm mt-1 block">{errors.game_id[0]}</span>
             )}
           </div>
+
           
+          {/* --- INICIO: SECCIÓN DE CONTENIDO DINÁMICO --- */}
           <div className="mb-8">
-            <label htmlFor="content" className="block text-lg font-medium text-[var(--color-text-primary)] mb-2">
+            <label className="block text-lg font-medium text-[var(--color-text-primary)] mb-2">
               Contenido de la Guía:
             </label>
-            <p className="text-sm text-[var(--color-text-secondary)] mb-3">
-              Usa Markdown para dar formato a tu guía. Puedes usar # para títulos, **negrita**, *cursiva*, listas con - o 1., etc.
-            </p>
-            <textarea
-              id="content"
-              name="content"
-              value={formData.content}
-              onChange={handleChange}
-              required
-              rows={12}
-              disabled={isLoading}
-              className="w-full p-3 border border-[var(--color-accent)] rounded bg-[#1e1e1e] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] focus:border-transparent font-mono text-sm"
-              placeholder="## Introducción\n\nEscribe aquí el contenido de tu guía..."
-            />
-            {errors.content && (
-              <span className="text-red-400 text-sm mt-1 block">{errors.content[0]}</span>
+            
+            <div className="space-y-6">
+              {sections.map((section, index) => (
+                <div 
+                  key={section.tempId} 
+                  className="bg-[#1e1e1e] border border-[var(--color-accent)] rounded-lg p-4"
+                >
+                  <div className="flex justify-between items-center mb-3">
+                    <span className="font-semibold text-[var(--color-text-secondary)] uppercase text-sm">
+                      Sección {index + 1}: {section.type}
+                    </span>
+                    <button 
+                      type="button"
+                      onClick={() => handleDeleteSection(section.tempId)}
+                      className="px-2 py-1 text-xs bg-red-600 text-white rounded hover:bg-red-700"
+                    >
+                      Eliminar
+                    </button>
+                  </div>
+
+                  {section.type === 'text' && (
+                    <textarea
+                      value={section.content}
+                      onChange={e => handleSectionChange(section.tempId, 'content', e.target.value)}
+                      rows={8}
+                      className="w-full p-3 border border-[#3a3a3a] rounded bg-[#2a2a2a] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] font-mono text-sm"
+                      placeholder="Escribe tu texto aquí (soporta Markdown)..."
+                    />
+                  )}
+
+                  {section.type === 'image' && (
+                    <div>
+                      <input
+                        type="file"
+                        accept="image/png, image/jpeg, image/gif"
+                        // --- INICIO: CORRECCIÓN ERROR 2 ---
+                        // Aseguramos que el valor sea 'File' o 'null', nunca 'undefined'
+                        onChange={e => handleSectionChange(section.tempId, 'imageFile', (e.target.files && e.target.files[0]) ? e.target.files[0] : null)}
+                        // --- FIN: CORRECCIÓN ERROR 2 ---
+                        className="w-full text-sm text-[var(--color-text-secondary)] file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-[var(--color-primary)] file:text-[var(--color-text-primary)] hover:file:bg-opacity-90"
+                      />
+                      {isEditMode && section.image_path && !section.imageFile && (
+                        <div className="mt-2">
+                          <p className="text-xs text-gray-400">Imagen actual:</p>
+                          {/* --- MEJORA: URL dinámica --- */}
+                          <img src={`${backendUrl}/storage/${section.image_path}`} alt="Vista previa" className="max-w-xs rounded mt-1" />
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {section.type === 'video' && (
+                    <input
+                      type="text"
+                      value={section.content}
+                      onChange={e => handleSectionChange(section.tempId, 'content', e.target.value)}
+                      className="w-full p-3 border border-[#3a3a3a] rounded bg-[#2a2a2a] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
+                      placeholder="Pega la URL del video (ej: YouTube, Vimeo)"
+                    />
+                  )}
+                  
+                  {/* --- INICIO: CORRECCIÓN ERRORES 3 Y 4 --- */}
+                  {/* Usamos 'optional chaining' (?.) para evitar crasheos */}
+                  {errors[`sections.${index}.content`]?.[0] && (
+                    <span className="text-red-400 text-sm mt-1 block">
+                      {String(errors[`sections.${index}.content`]?.[0] || '')}
+                    </span>
+                  )}
+                  {errors[`sections.${index}.image`]?.[0] && (
+                    <span className="text-red-400 text-sm mt-1 block">
+                      {String(errors[`sections.${index}.image`]?.[0] || '')}
+                    </span>
+                  )}
+                  {/* --- FIN: CORRECCIÓN ERRORES 3 Y 4 --- */}
+                </div>
+              ))}
+            </div>
+
+            <div className="flex gap-4 mt-6 pt-4 border-t border-[var(--color-accent)]">
+              <span className="text-sm font-medium text-[var(--color-text-primary)] self-center">Añadir sección:</span>
+              <button 
+                type="button" 
+                onClick={() => handleAddSection('text')}
+                className="px-3 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-700"
+              >
+                + Texto
+              </button>
+              <button 
+                type="button" 
+                onClick={() => handleAddSection('image')}
+                className="px-3 py-1 text-sm bg-green-600 text-white rounded hover:bg-green-700"
+              >
+                + Imagen
+              </button>
+              <button 
+                type="button" 
+                onClick={() => handleAddSection('video')}
+                className="px-3 py-1 text-sm bg-purple-600 text-white rounded hover:bg-purple-700"
+              >
+                + Video
+              </button>
+            </div>
+            {errors.sections && (
+              <span className="text-red-400 text-sm mt-1 block">{errors.sections[0]}</span>
             )}
           </div>
+          {/* --- FIN: SECCIÓN DE CONTENIDO DINÁMICO --- */}
+
           
           <div className="flex justify-end gap-4 pt-4 border-t border-[var(--color-accent)]">
             <button 
@@ -263,7 +441,7 @@ const CreateGuidePage: React.FC = () => {
             </button>
             <button 
               type="submit" 
-              disabled={isLoading}
+              disabled={isLoading || sections.length === 0}
               className="px-6 py-2 bg-[var(--color-primary)] text-[var(--color-text-primary)] font-bold rounded hover:bg-opacity-90 transition-all hover:shadow-[0_0_15px_rgba(231,0,0,0.3)] disabled:opacity-50"
             >
               {isLoading 

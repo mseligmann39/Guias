@@ -53,4 +53,9 @@ public function users()
                 ->withPivot('is_favorite', 'progress_status') // ¡Importante!
                 ->withTimestamps();
 }
+
+public function sections(): HasMany
+    {
+        return $this->hasMany(GuideSection::class)->orderBy('order', 'asc');
+    }
 }
