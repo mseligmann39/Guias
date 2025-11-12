@@ -82,9 +82,7 @@ function HomePage() {
   return (
     <>
       <Header />
-      <div className="container mx-auto px-4">
-        <PopularGuides />
-      </div>
+      
       <main className="p-8">
 
         {/* --- ¡ELIMINADO! --- */}
@@ -111,6 +109,9 @@ function HomePage() {
             <Pagination links={links} onPageChange={handlePageChange} />
           </>
         )}
+        <div className="container mx-auto px-4">
+        <PopularGuides />
+      </div>
       </main>
     </>
   );
