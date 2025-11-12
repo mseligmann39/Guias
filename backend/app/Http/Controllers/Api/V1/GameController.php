@@ -17,7 +17,7 @@ class GameController extends Controller
     {
         // Usamos with('categories') para cargar también las categorías de cada juego.
         // Esto se llama "Eager Loading" y es mucho más eficiente.
-        return Game::with('categories')->get();
+        return Game::with('categories')->paginate(18);
     }
 
     /**

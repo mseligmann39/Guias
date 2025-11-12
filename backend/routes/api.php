@@ -29,12 +29,14 @@ Route::post('/login', [ApiAuthController::class, 'login']);
 // Recursos públicos
 Route::apiResource('games', GameController::class)->only(['index', 'show']);
 Route::apiResource('categories', CategoryController::class)->only(['index', 'show']);
+Route::get('/guides/user/{userId}', [GuideController::class, 'guidesByUser']);
+Route::get('/guides/popular', [GuideController::class, 'popular']);
 Route::apiResource('guides', GuideController::class)->only(['index', 'show']);
 
 Route::get('/search', [SearchController::class, 'index']);
 
 // Guías por usuario
-Route::get('/guides/user/{userId}', [GuideController::class, 'guidesByUser']);
+
 
 // Ruta de depuración de configuración de Sanctum (solo para desarrollo)
 if (config('app.debug')) {

@@ -206,4 +206,17 @@ public function show(string $id)
 
         return response()->json(null, 204);
     }
+
+    public function popular(Request $request)
+    {
+        $limit = $request->input('limit', 5); // Por defecto 5, pero permite ?limit=X
+
+        return Guide::query()
+            ->with('user', 'game') // Carga las relaciones
+            ->withAvg('ratings', 'rating') // Calcula la media de valoraciones
+            ->orderByDesc('ratings_avg_rating') // Ordena por esa media
+            ->take($limit) // Coge solo las X primeras
+            ->get();
+    }
+    
 }
