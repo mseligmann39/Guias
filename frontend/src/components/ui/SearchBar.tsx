@@ -69,7 +69,7 @@ function SearchBar() {
           onChange={(e) => setQuery(e.target.value)}
           onFocus={() => setShowResults(true)}
           placeholder="Buscar juegos, guías, usuarios..."
-          className="w-full bg-gray-800 text-white border border-gray-600 rounded-lg py-2 px-3 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+          className="w-full bg-gray-800 text-white border border-gray-600 rounded-lg py-2 px-4 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
         />
         {isLoading && (
           <div className="absolute right-3 top-1/2 transform -translate-y-1/2">

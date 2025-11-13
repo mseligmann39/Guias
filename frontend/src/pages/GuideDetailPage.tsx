@@ -9,6 +9,7 @@ import CommentList from "../components/CommentList";
 import CommentInput from "../components/CommentInput";
 import StarRating from "../components/StarRating";
 import StarInput from "@/components/StarInput";
+import GuideListActions from "@/components/GuideListActions";
 
 const backendUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:8000";
 
@@ -267,6 +268,8 @@ const GuideDetailPage: React.FC = () => {
             )}
           </div>
         </article>
+
+            <GuideListActions guideId={guide.id} initialStatus={guide.list_status}/>
 
         {/* --- INICIO: Paso 4 - Arreglar CommentInput --- */}
         <section className="mt-8">

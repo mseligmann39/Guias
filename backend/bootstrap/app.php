@@ -21,6 +21,11 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware) {
         // Habilita la pila de middleware de API stateful para Sanctum (cookies + sesión)
         $middleware->statefulApi();
+        
+        $middleware->alias([
+            // ... otros middlewares existentes
+            'admin' => \App\Http\Middleware\IsAdmin::class,
+        ]);
     })
 
     ->withExceptions(function (Exceptions $exceptions) {

@@ -10,17 +10,25 @@ return new class extends Migration
      * Run the migrations.
      */
     public function up(): void
-{
-    Schema::create('guides', function (Blueprint $table) {
-        $table->id();
-        $table->foreignId('game_id')->constrained()->onDelete('cascade');
-        $table->foreignId('user_id')->constrained()->onDelete('cascade');
-        $table->string('title');
-        $table->string('slug')->unique();
-        $table->longText('content');
-        $table->timestamps();
-    });
-}
+    {
+        Schema::create('guides', function (Blueprint $table) {
+            $table->id();
+            
+            // CORREGIDO: 'game_id' ahora es 'nullable' y usa 'set null'
+            $table->foreignId('game_id')->nullable()->constrained()->onDelete('set null');
+            
+            // CORRECTO: 'user_id' usa 'cascade'
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            
+            $table->string('title');
+            $table->string('slug')->unique();
+            
+            // ¡ELIMINADO! Ya no creamos esta columna
+            // $table->longText('content'); 
+            
+            $table->timestamps();
+        });
+    }
 
     /**
      * Reverse the migrations.

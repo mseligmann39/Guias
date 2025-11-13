@@ -12,6 +12,9 @@ use App\Http\Controllers\Api\V1\RatingController;
 use App\Http\Controllers\Api\V1\CommentController;
 use App\Http\Controllers\Api\V1\UserListController;
 use App\Http\Controllers\Api\V1\SearchController;
+use App\Http\Controllers\Api\Admin\GameController as AdminGameController;
+use App\Http\Controllers\Api\Admin\GuideController as AdminGuideController;
+use App\Http\Controllers\Api\Admin\UserController as AdminUserController;
 
 /*
 |--------------------------------------------------------------------------
@@ -114,8 +117,22 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // --- Rutas solo para Administradores ---
     // El middleware 'admin' debe estar registrado en App/Http/Kernel.php
-    Route::middleware(['admin'])->group(function () {
-        Route::apiResource('games', GameController::class)->except(['index', 'show']);
-        Route::apiResource('categories', CategoryController::class)->except(['index', 'show']);
-    });
+   
+});
+
+Route::prefix('admin')->middleware(['auth:sanctum', 'admin'])->group(function () {
+    // Gestión de Juegos
+    Route::post('/games', [AdminGameController::class, 'store']);
+    Route::put('/games/{game}', [AdminGameController::class, 'update']);
+    Route::delete('/games/{game}', [AdminGameController::class, 'destroy']);
+    // (Asumo que también tienes GET /admin/games aquí)
+    // Route::get('/games', [AdminGameController::class, 'index']); // <-- Asegúrate de tener esto
+
+    // Gestión de Guías
+    Route::get('/guides', [AdminGuideController::class, 'index']); // <-- ¡AÑADIR ESTA LÍNEA!
+    Route::delete('/guides/{guide}', [AdminGuideController::class, 'destroy']);
+
+    // Gestión de Usuarios
+    Route::get('/users', [AdminUserController::class, 'index']);
+    Route::delete('/users/{user}', [AdminUserController::class, 'destroy']);
 });

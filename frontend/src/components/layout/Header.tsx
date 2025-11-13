@@ -31,7 +31,10 @@ function Header() {
   return (
     <header className="flex justify-between items-center py-4 px-8 bg-[var(--color-background)] border-b border-[var(--color-accent)] w-full box-border">
       <MainLogo/>
-      <SearchBar/>
+
+     <div className="flex-grow mx-2 max-w-[1500px] md:max-w-[500px]"> {/* Añadido contenedor flexible y ancho máximo */}
+        <SearchBar/>
+      </div>
       <nav className="flex items-center gap-6">
         {
           // Si el usuario existe (está logueado)

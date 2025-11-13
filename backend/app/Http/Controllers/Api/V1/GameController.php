@@ -13,12 +13,25 @@ class GameController extends Controller
      * Muestra una lista de todos los juegos con sus categorías.
      * GET /api/games
      */
-    public function index()
-    {
-        // Usamos with('categories') para cargar también las categorías de cada juego.
-        // Esto se llama "Eager Loading" y es mucho más eficiente.
-        return Game::with('categories')->paginate(18);
+   public function index(Request $request)
+{
+    $query = Game::query();
+
+    // ¡NUEVO! Lógica de Búsqueda
+    if ($request->has('search')) {
+        $searchTerm = $request->input('search');
+        // Busca si el título "es como" (LIKE) el término de búsqueda
+        $query->where('title', 'LIKE', '%' . $searchTerm . '%');
     }
+
+    // Ordenar por título por defecto
+    $query->orderBy('title', 'asc');
+
+    // Devolvemos 18 por página (o 50 si es una petición de admin)
+    $perPage = $request->input('per_page', 18);
+
+    return $query->paginate($perPage);
+}
 
     /**
      * Almacena un nuevo juego en la base de datos.

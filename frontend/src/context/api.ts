@@ -15,12 +15,6 @@ const api = axios.create({
   xsrfHeaderName: 'X-XSRF-TOKEN',
 });
 
-// Configurar el token si existe en localStorage
-const token = localStorage.getItem('token');
-if (token) {
-  api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-}
-
 // Interceptor para debugging de CSRF token
 api.interceptors.request.use(
   config => {

@@ -63,7 +63,7 @@ function EditProfilePage() {
         } : {})
       };
 
-      await api.put('/api/users/profile', dataToSend);
+      await api.put('/api/user/profile', dataToSend);
       await refreshUser(); // Actualizar la información del usuario en el contexto
       setSuccess('Perfil actualizado correctamente');
     } catch (err: any) {

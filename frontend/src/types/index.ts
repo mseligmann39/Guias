@@ -7,6 +7,7 @@ export interface User {
 }
 
 export interface Game {
+  release_date: string;
   id: number;
   title: string;
   slug?: string; // Visto en tu JSON

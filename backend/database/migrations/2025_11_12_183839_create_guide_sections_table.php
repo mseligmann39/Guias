@@ -1,5 +1,4 @@
 <?php
-// backend/database/migrations/..._create_guide_sections_table.php
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -12,13 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        // ¡ESTE ES EL CÓDIGO CLAVE!
         Schema::create('guide_sections', function (Blueprint $table) {
             $table->id();
             
             $table->foreignId('guide_id')
                   ->constrained()
-                  ->onDelete('cascade');
+                  ->onDelete('cascade'); // Si se borra la guía, se borran sus secciones
 
             $table->unsignedInteger('order');
             $table->string('type')->default('text'); // 'text', 'image', 'video'
