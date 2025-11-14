@@ -116,3 +116,16 @@ export const getGuidesByUserId = (userId: string | number) => {
 };
 
 export default api;
+
+// --- Admin reports endpoints ---
+export const getAdminReports = (params?: { page?: number; estado?: string; per_page?: number }) => {
+  return api.get('/api/admin/reportes', { params });
+};
+
+export const getAdminReport = (reporteId: number | string) => {
+  return api.get(`/api/admin/reportes/${reporteId}`);
+};
+
+export const updateAdminReport = (reporteId: number | string, data: { estado: 'pendiente' | 'revisado' | 'ignorado' }) => {
+  return api.put(`/api/admin/reportes/${reporteId}`, data);
+};

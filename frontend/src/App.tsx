@@ -15,6 +15,8 @@ import AdminDashboardPage from './pages/admin/AdminDashboardPage';
 import AdminGameManagement from './pages/admin/AdminGameManagement';
 import AdminUserManagement from './pages/admin/AdminUserManagement';
 import AdminGuideManagement from './pages/admin/AdminGuideManagement';
+import AdminReportsPage from './pages/admin/AdminReportsPage';
+import AdminReportDetail from './pages/admin/AdminReportDetail';
  /* Función principal de la aplicación.
  Renderiza las rutas de la aplicación.
  */
@@ -37,6 +39,8 @@ function App() {
             <Route path="/admin/games" element={<AdminGameManagement />} />
             <Route path="/admin/users" element={<AdminUserManagement />} />
             <Route path="/admin/guides" element={<AdminGuideManagement />} />
+            <Route path="/admin/reportes" element={<AdminReportsPage />} />
+            <Route path="/admin/reportes/:id" element={<AdminReportDetail />} />
           </Route>
     </Routes>
   );

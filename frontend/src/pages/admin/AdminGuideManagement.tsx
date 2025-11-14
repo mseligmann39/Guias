@@ -4,6 +4,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import api from '@/context/api';
 import { useDebounce } from '@/hooks/useDebounce';
 import { Link } from 'react-router-dom'; // Importamos Link
+import HeaderAdmin from './HeaderAdmin';
 
 // 1. Interfaces (¡incluyendo relaciones!)
 interface UserSummary {
@@ -77,7 +78,9 @@ const AdminGuideManagement: React.FC = () => {
   };
 
   return (
-    <div className="max-w-7xl mx-auto p-6 text-[var(--color-text-primary)]">
+    <div>
+      <HeaderAdmin />
+      <div className="max-w-7xl mx-auto p-6 text-[var(--color-text-primary)]">
       <div className="flex flex-col md:flex-row justify-between md:items-center mb-6 gap-4">
         <h1 className="text-3xl font-bold">Gestión de Guías</h1>
         <input
@@ -150,6 +153,7 @@ const AdminGuideManagement: React.FC = () => {
         >
           Siguiente
         </button>
+      </div>
       </div>
     </div>
   );

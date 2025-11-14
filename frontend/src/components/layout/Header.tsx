@@ -41,6 +41,9 @@ function Header() {
           user ? (
             // Mostramos el nombre del usuario y los enlaces a su perfil y para cerrar la sesión
             <>
+              {user.is_admin && (
+                <Link to="/admin" className="px-3 py-2 bg-[var(--color-accent)] text-[var(--color-bg)] rounded">Admin</Link>
+              )}
               <span className="text-[var(--color-text-secondary)]">Bienvenido, {user.name}!</span>
               <Link to="/profile" className="flex items-center justify-center w-10 h-10 text-2xl bg-[var(--color-accent)] rounded-full transition-transform duration-200 hover:scale-110">
                 {user.profileIcon || '👤'}

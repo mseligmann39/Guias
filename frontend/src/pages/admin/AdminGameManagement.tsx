@@ -3,6 +3,7 @@ import api from '@/context/api';
 import type { Game } from '@/types';
 // --- CORREGIDO: Ahora importa el hook desde su propio archivo ---
 import { useDebounce } from '@/hooks/useDebounce';
+import HeaderAdmin from './HeaderAdmin';
 // (Interfaces GameFormData y emptyForm siguen igual)
 interface GameFormData {
   title: string;
@@ -90,7 +91,9 @@ const handleSave = async (formData: GameFormData) => {
   }
 };
   return (
-    <div className="max-w-7xl mx-auto p-6 text-[var(--color-text-primary)]">
+    <div>
+      <HeaderAdmin />
+      <div className="max-w-7xl mx-auto p-6 text-[var(--color-text-primary)]">
       {/* (El resto del JSX es idéntico al anterior) */}
       <div className="flex flex-col md:flex-row justify-between md:items-center mb-6 gap-4">
         <h1 className="text-3xl font-bold">Gestión de Juegos</h1>
@@ -181,6 +184,7 @@ const handleSave = async (formData: GameFormData) => {
         />
       )}
     </div>
+    </div>
   );
 };
 
@@ -195,7 +199,7 @@ const GameEditModal: React.FC<GameEditModalProps> = ({ initialGameData, onSave, 
     initialGameData 
       ? {
           title: initialGameData.title,
-          description: initialGameData.description,
+          description: initialGameData.description || '',
           cover_image_url: initialGameData.cover_image_url || '',
           release_date: initialGameData.release_date || '',
         }

@@ -2,6 +2,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '@/context/auth';
+import HeaderAdmin from './HeaderAdmin';
 
 // (Puedes importar iconos de lucide-react si los tienes)
 // import { Shield, Users, Gamepad2, FileText } from 'lucide-react';
@@ -9,7 +10,8 @@ import { useAuth } from '@/context/auth';
 const AdminDashboardPage: React.FC = () => {
   const { user } = useAuth();
 
-  return (
+  return (<>
+    <HeaderAdmin />
     <div className="max-w-7xl mx-auto p-6 text-[var(--color-text-primary)]">
       <h1 className="text-3xl font-bold mb-4">Panel de Administración</h1>
       <p className="text-lg text-[var(--color-text-secondary)] mb-8">
@@ -45,8 +47,15 @@ const AdminDashboardPage: React.FC = () => {
           </p>
         </Link>
 
+        {/* Enlace a Reportes de Guías */}
+        <Link to="/admin/reportes" className="block p-6 bg-[#2a2a2a] border border-[var(--color-accent)] rounded-lg hover:bg-[#3a3a3a] transition-colors">
+          <h2 className="text-xl font-semibold mb-2">Ver Reportes</h2>
+          <p className="text-[var(--color-text-secondary)]">Revisar los reportes enviados por usuarios y tomar acciones.</p>
+        </Link>
+
       </div>
     </div>
+    </>
   );
 };
 

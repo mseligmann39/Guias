@@ -12,6 +12,7 @@ use App\Http\Controllers\Api\V1\RatingController;
 use App\Http\Controllers\Api\V1\CommentController;
 use App\Http\Controllers\Api\V1\UserListController;
 use App\Http\Controllers\Api\V1\SearchController;
+use App\Http\Controllers\Api\V1\GuideReportController;
 use App\Http\Controllers\Api\Admin\GameController as AdminGameController;
 use App\Http\Controllers\Api\Admin\GuideController as AdminGuideController;
 use App\Http\Controllers\Api\Admin\UserController as AdminUserController;
@@ -35,6 +36,9 @@ Route::apiResource('categories', CategoryController::class)->only(['index', 'sho
 Route::get('/guides/user/{userId}', [GuideController::class, 'guidesByUser']);
 Route::get('/guides/popular', [GuideController::class, 'popular']);
 Route::apiResource('guides', GuideController::class)->only(['index', 'show']);
+
+// Ruta para reportar una guía (soporta reportes anónimos)
+Route::post('/guias/{guide}/reporte', [GuideReportController::class, 'store']);
 
 Route::get('/search', [SearchController::class, 'index']);
 
@@ -131,6 +135,11 @@ Route::prefix('admin')->middleware(['auth:sanctum', 'admin'])->group(function ()
     // Gestión de Guías
     Route::get('/guides', [AdminGuideController::class, 'index']); // <-- ¡AÑADIR ESTA LÍNEA!
     Route::delete('/guides/{guide}', [AdminGuideController::class, 'destroy']);
+
+    // Gestión de Reportes de Guías
+    Route::get('/reportes', [\App\Http\Controllers\Api\Admin\ReporteGuiaController::class, 'index']);
+    Route::get('/reportes/{reporte}', [\App\Http\Controllers\Api\Admin\ReporteGuiaController::class, 'show']);
+    Route::put('/reportes/{reporte}', [\App\Http\Controllers\Api\Admin\ReporteGuiaController::class, 'update']);
 
     // Gestión de Usuarios
     Route::get('/users', [AdminUserController::class, 'index']);

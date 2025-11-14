@@ -23,6 +23,16 @@ class GuideController extends Controller
             'game:id,title' // De la tabla 'games', trae id y title
         ]);
 
+        // Filtro para guías reportadas (al menos un reporte pendiente)
+        if ($request->get('filter') === 'reportadas') {
+            $query->whereHas('reportes', function ($q) {
+                $q->where('estado', 'pendiente');
+            });
+
+            // Incluir conteo de reportes pendientes por guía
+            $query->withCount(['reportes as reportes_pendientes_count' => fn($q) => $q->where('estado', 'pendiente')]);
+        }
+
         // Búsqueda por título de guía
         if ($request->has('search')) {
             $query->where('title', 'LIKE', "%{$request->search}%");

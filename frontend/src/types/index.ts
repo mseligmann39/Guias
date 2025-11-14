@@ -56,6 +56,21 @@ export interface Guide {
   // Campos calculados
   average_rating?: number;
   rating_count?: number; // <-- Arregla Error 7 (tu JSON usa 'rating_count', no 'ratings_count')
+  // Campos opcionales usados en la UI
+  user_rating?: number; // calificación del usuario actualmente (si existe)
+  list_status?: {
+    is_favorite: boolean;
+    progress_status: 'todo' | 'completed' | null;
+  };
 }
 
 export type ApiResponse<T> = T;
+
+// Tipos para el sistema de reportes
+export type ReporteRazon = 'contenido_inapropiado' | 'guia_falsa' | 'juego_equivocado' | 'otro';
+
+export interface ReportePayload {
+  razon: ReporteRazon;
+  detalle_opcional?: string;
+}
+ 

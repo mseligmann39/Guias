@@ -1,8 +1,9 @@
 // frontend/src/components/GuideListActions.tsx
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { postGuideListStatus } from '../context/api';
 import { useAuth } from '../context/AuthContext';
+import ReporteModal from './ReporteModal';
 
 // --- Tipos ---
 // Definimos el tipo para el estado de la lista
@@ -15,21 +16,24 @@ export interface ListStatus {
 // Definimos las props que recibirá este componente
 interface GuideListActionsProps {
   guideId: string | number;
-  initialStatus: ListStatus;
+  initialStatus?: ListStatus; // optional, may be undefined for anonymous viewers
 }         
 
 function GuideListActions({ guideId, initialStatus }: GuideListActionsProps) {
   const { user } = useAuth();
-const isAuthenticated = !!user;
+  const isAuthenticated = !!user;
+  const [showMenu, setShowMenu] = useState(false);
+  const [showReporteModal, setShowReporteModal] = useState(false);
+  const menuRef = useRef<HTMLDivElement | null>(null);
 
   // Estado local para manejar la UI de forma optimista
-  const [status, setStatus] = useState<ListStatus>(initialStatus);
+  const [status, setStatus] = useState<ListStatus>(() => initialStatus ?? { is_favorite: false, progress_status: null });
   // Estado de carga para deshabilitar botones mientras se guarda
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Sincronizamos el estado si las props (desde el padre) cambian
   useEffect(() => {
-    setStatus(initialStatus);
+    setStatus(initialStatus ?? { is_favorite: false, progress_status: null });
   }, [initialStatus]);
 
   /**
@@ -82,46 +86,107 @@ const isAuthenticated = !!user;
     });
   };
 
-  // Si el usuario no está logueado, no mostramos nada
-  if (!isAuthenticated) {
-    return null; 
-  }
+  // Nota: permitimos ver el menú incluso si no hay sesión, porque el reporte
+  // puede ser anónimo. Solo deshabilitamos las acciones que requieren auth.
 
   // Renderizado
-  return (
-    <div className="flex items-center gap-3">
-      <button 
-        onClick={handleToggleFavorite}
-        className={`px-4 py-2 rounded-lg font-medium text-sm transition-all ${
-          status.is_favorite 
-            ? 'bg-[var(--color-accent)] text-[var(--color-bg)] hover:bg-[var(--color-accent-hover)]' 
-            : 'bg-[var(--color-bg-secondary)] text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-hover)]'
-        } ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}`}
-        disabled={isSubmitting}
-      >
-        {status.is_favorite ? '★ Favorito' : '☆ Favorito'}
-      </button>
-      
-      <div className="relative">
-        <select 
-          onChange={handleProgressChange} 
-          value={status.progress_status || 'none'}
-          className="appearance-none bg-[var(--color-bg-secondary)] text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-hover)] rounded-lg px-4 py-2 pr-8 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)] focus:border-transparent cursor-pointer"
-          disabled={isSubmitting}
-        >
-          <option value="none">Marcar como...</option>
-          <option value="todo">Por Hacer</option>
-          <option value="completed">Completado</option>
-        </select>
-        <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-[var(--color-text-secondary)]">
-          <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-            <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/>
-          </svg>
-        </div>
-      </div>
+  // Click outside handler to close menu
+  useEffect(() => {
+    function onClick(e: MouseEvent) {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setShowMenu(false);
+      }
+    }
+    if (showMenu) document.addEventListener('click', onClick);
+    return () => document.removeEventListener('click', onClick);
+  }, [showMenu]);
 
-      {isSubmitting && <span className="text-sm text-[var(--color-text-secondary)]">Guardando...</span>}
-    </div>
+  return (
+    <nav className="relative inline-block" ref={menuRef} aria-label="Acciones de guía">
+      <button
+        onClick={() => setShowMenu(v => !v)}
+        className="p-2 rounded-full hover:bg-[var(--color-bg-secondary)]"
+        aria-haspopup="true"
+        aria-expanded={showMenu}
+        aria-controls={`guide-actions-${guideId}`}
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="currentColor" viewBox="0 0 20 20">
+          <path d="M6 10a2 2 0 11-4 0 2 2 0 014 0zm6 0a2 2 0 11-4 0 2 2 0 014 0zm6 0a2 2 0 11-4 0 2 2 0 014 0z" />
+        </svg>
+      </button>
+
+      {showMenu && (
+        <div id={`guide-actions-${guideId}`} role="menu" className="absolute right-0 top-full mt-2 w-56 bg-slate-800 border border-[var(--color-border)] rounded shadow-lg z-50">
+          <ul className="flex flex-col py-2 bg-slate-800" role="none">
+            <li role="none">
+              <button
+                role="menuitem"
+                onClick={() => { setShowMenu(false); handleToggleFavorite(); }}
+                className={`w-full text-left px-4 py-2 text-sm hover:bg-[var(--color-bg-secondary)] ${!isAuthenticated || isSubmitting ? 'opacity-60 cursor-not-allowed' : ''}`}
+                disabled={!isAuthenticated || isSubmitting}
+              >
+                {status.is_favorite ? '★ Quitar favorito' : '☆ Añadir a favoritos'}
+              </button>
+            </li>
+
+            <li role="none">
+              <button
+                role="menuitem"
+                onClick={() => { setShowMenu(false); setShowReporteModal(true); }}
+                className="w-full text-left px-4 py-2 text-sm hover:bg-[var(--color-bg-secondary)]"
+              >
+                ⚠️ Reportar guía
+              </button>
+            </li>
+
+            <li><div className="border-t border-[var(--color-border)] my-1" /></li>
+
+            <li role="none">
+              <div className="px-4 py-2 text-sm text-[var(--color-text-secondary)]">Marcar como:</div>
+            </li>
+
+            <li role="none">
+              <button
+                role="menuitem"
+                onClick={() => { setShowMenu(false); handleUpdate({ progress_status: 'todo' }); }}
+                className={`w-full text-left px-4 py-2 text-sm hover:bg-[var(--color-bg-secondary)] ${!isAuthenticated || isSubmitting ? 'opacity-60 cursor-not-allowed' : ''}`}
+                disabled={!isAuthenticated || isSubmitting}
+              >
+                Por Hacer
+              </button>
+            </li>
+
+            <li role="none">
+              <button
+                role="menuitem"
+                onClick={() => { setShowMenu(false); handleUpdate({ progress_status: 'completed' }); }}
+                className={`w-full text-left px-4 py-2 text-sm hover:bg-[var(--color-bg-secondary)] ${!isAuthenticated || isSubmitting ? 'opacity-60 cursor-not-allowed' : ''}`}
+                disabled={!isAuthenticated || isSubmitting}
+              >
+                Completado
+              </button>
+            </li>
+
+            <li role="none">
+              <button
+                role="menuitem"
+                onClick={() => { setShowMenu(false); handleUpdate({ progress_status: null }); }}
+                className={`w-full text-left px-4 py-2 text-sm hover:bg-[var(--color-bg-secondary)] ${!isAuthenticated || isSubmitting ? 'opacity-60 cursor-not-allowed' : ''}`}
+                disabled={!isAuthenticated || isSubmitting}
+              >
+                Quitar marca
+              </button>
+            </li>
+          </ul>
+        </div>
+      )}
+
+      {showReporteModal && (
+        <ReporteModal guiaId={guideId} onClose={() => setShowReporteModal(false)} onSuccess={() => { /* optionally refetch parent */ }} />
+      )}
+
+      {isSubmitting && <span className="text-sm text-[var(--color-text-secondary)] ml-2">Guardando...</span>}
+    </nav>
   );
 }
 
