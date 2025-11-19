@@ -19,14 +19,14 @@ use App\Http\Controllers\Api\Admin\UserController as AdminUserController;
 
 /*
 |--------------------------------------------------------------------------
-| API Routes
+| Rutas de la API
 |--------------------------------------------------------------------------
 |
-| Here is where you can register API routes for your application.
+| Aquí puedes registrar las rutas de la API para tu aplicación.
 |
 */
 
-// --- Rutas Públicas (Sin autenticación) ---
+// Rutas públicas (Sin autenticación requerida)
 Route::post('/register', [ApiAuthController::class, 'register']);
 Route::post('/login', [ApiAuthController::class, 'login']);
 
@@ -37,35 +37,12 @@ Route::get('/guides/user/{userId}', [GuideController::class, 'guidesByUser']);
 Route::get('/guides/popular', [GuideController::class, 'popular']);
 Route::apiResource('guides', GuideController::class)->only(['index', 'show']);
 
-// Ruta para reportar una guía (soporta reportes anónimos)
+// Reportar una guía (admite reportes anónimos)
 Route::post('/guias/{guide}/reporte', [GuideReportController::class, 'store']);
 
 Route::get('/search', [SearchController::class, 'index']);
 
-// Guías por usuario
-
-
-// Ruta de depuración de configuración de Sanctum (solo para desarrollo)
-if (config('app.debug')) {
-    Route::get('/debug-sanctum-config', function (Request $request) {
-        $sanctumConfig = config('sanctum');
-        $origin = $request->header('Origin');
-        $originHost = $origin ? parse_url($origin, PHP_URL_HOST) : null;
-        $originPort = $origin ? parse_url($origin, PHP_URL_PORT) : null;
-        $fullOrigin = $originHost . ($originPort ? ':' . $originPort : '');
-        
-        return response()->json([
-            'stateful_domains' => $sanctumConfig['stateful'],
-            'request_origin' => $origin,
-            'origin_host' => $originHost,
-            'is_in_stateful_list' => in_array($originHost, $sanctumConfig['stateful']) || in_array($fullOrigin, $sanctumConfig['stateful']),
-            'auth_check' => Auth::check(),
-            'auth_user_id' => Auth::id(),
-        ]);
-    });
-}
-
-// --- Rutas Protegidas (Requieren autenticación) ---
+// --- Rutas Protegidas (Requiere autenticación) ---
 Route::middleware('auth:sanctum')->group(function () {
     // Autenticación
     Route::post('/logout', [ApiAuthController::class, 'logout']);
@@ -80,7 +57,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::put('/guides/{guide}', [GuideController::class, 'update']);
 
-    // NUEVA RUTA: Para eliminar una guía
+    // Eliminar una guía
     Route::delete('/guides/{guide}', [GuideController::class, 'destroy']);
 
     // Listas de usuario
@@ -93,55 +70,30 @@ Route::middleware('auth:sanctum')->group(function () {
     // Valoraciones
     Route::post('/guides/{guide}/ratings', [RatingController::class, 'store']);
 
-    // Depuración (solo desarrollo)
-    if (config('app.debug')) {
-        Route::get('/debug-auth', function (Request $request) {
-            return response()->json([
-                'authenticated' => Auth::check(),
-                'user' => Auth::user(),
-                'user_id' => Auth::id(),
-                'session_id' => $request->session()->getId(),
-                'has_session' => $request->hasSession(),
-                'all_cookies' => $request->cookies->all(),
-                'headers' => [
-                    'origin' => $request->header('Origin'),
-                    'referer' => $request->header('Referer'),
-                    'host' => $request->header('Host'),
-                ],
-            ]);
-        });
-    }
 
-    // Obtener las guías del usuario autenticado
-   
-
-    // Rutas para crear, actualizar y eliminar guías (solo usuarios autenticados)
-    // Esto incluye: POST /guides, PUT/PATCH /guides/{guide}, DELETE /guides/{guide}
+    // Crear, actualizar y eliminar guías (solo usuarios autenticados)
     Route::apiResource('guides', GuideController::class)->except(['index', 'show']);
 
-    // --- Rutas solo para Administradores ---
-    // El middleware 'admin' debe estar registrado en App/Http/Kernel.php
-   
+    // --- Admin Routes ---
 });
 
+// Rutas de administrador (requiere privilegios de administrador)
 Route::prefix('admin')->middleware(['auth:sanctum', 'admin'])->group(function () {
-    // Gestión de Juegos
+    // Gestión de juegos
     Route::post('/games', [AdminGameController::class, 'store']);
     Route::put('/games/{game}', [AdminGameController::class, 'update']);
     Route::delete('/games/{game}', [AdminGameController::class, 'destroy']);
-    // (Asumo que también tienes GET /admin/games aquí)
-    // Route::get('/games', [AdminGameController::class, 'index']); // <-- Asegúrate de tener esto
 
-    // Gestión de Guías
-    Route::get('/guides', [AdminGuideController::class, 'index']); // <-- ¡AÑADIR ESTA LÍNEA!
+    // Gestión de guías
+    Route::get('/guides', [AdminGuideController::class, 'index']);
     Route::delete('/guides/{guide}', [AdminGuideController::class, 'destroy']);
 
-    // Gestión de Reportes de Guías
+    // Gestión de reportes de guías
     Route::get('/reportes', [\App\Http\Controllers\Api\Admin\ReporteGuiaController::class, 'index']);
     Route::get('/reportes/{reporte}', [\App\Http\Controllers\Api\Admin\ReporteGuiaController::class, 'show']);
     Route::put('/reportes/{reporte}', [\App\Http\Controllers\Api\Admin\ReporteGuiaController::class, 'update']);
 
-    // Gestión de Usuarios
+    // Gestión de usuarios
     Route::get('/users', [AdminUserController::class, 'index']);
     Route::delete('/users/{user}', [AdminUserController::class, 'destroy']);
 });

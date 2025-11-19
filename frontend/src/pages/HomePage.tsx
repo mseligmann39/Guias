@@ -1,100 +1,112 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-// ¡NUEVO! Importamos useSearchParams y el componente Pagination
+// Importación de hooks y componentes necesarios
 import { useSearchParams } from 'react-router-dom';
-import Pagination from '../components/Pagination'; // Ajusta la ruta
+import Pagination from '../components/Pagination'; 
 
 import Header from '../components/layout/Header';
 import Card from '../components/ui/Card';
 import PopularGuides from '../components/PopularGuides';
 
-// Definir el tipo de los juegos
+/**
+ * Interfaz que define la estructura de un juego
+ * @property {number|string} id - Identificador único del juego
+ * @property {string} title - Título del juego
+ * @property {string} cover_image_url - URL de la imagen de portada
+ */
 interface Game {
   id: number | string;
   title: string;
   cover_image_url: string;
 }
 
-// Definir el tipo para los 'links' y 'meta' de la paginación de Laravel
+/**
+ * Interfaz para los enlaces de paginación
+ * @property {string | null} url - URL de la página
+ * @property {string} label - Etiqueta del enlace
+ * @property {boolean} active - Indica si es la página actual
+ */
 interface PaginationLink {
   url: string | null;
   label: string;
   active: boolean;
 }
+
+/**
+ * Interfaz para la información de paginación
+ * @property {number} current_page - Número de la página actual
+ * @property {number} last_page - Número de la última página
+ */
 interface PaginationMeta {
   current_page: number;
   last_page: number;
-  // ... (puedes añadir 'total', 'per_page', etc. si los necesitas)
 }
 
 function HomePage() {
-  const [games, setGames] = useState<Game[]>([]); // Almacena solo los juegos de la página actual
+  // Estado para almacenar los juegos de la página actual
+  const [games, setGames] = useState<Game[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   
-  // --- ¡NUEVO! Estado de Paginación ---
+  // Estados para la paginación
   const [links, setLinks] = useState<PaginationLink[]>([]);
   const [meta, setMeta] = useState<PaginationMeta | null>(null);
 
-  // --- ¡NUEVO! Hook para la URL ---
+  // Hook para manejar los parámetros de búsqueda en la URL
   const [searchParams, setSearchParams] = useSearchParams();
 
-  // 1. Obtener los juegos de la API (ahora con paginación)
+  /**
+   * Efecto para cargar los juegos con paginación
+   * Se ejecuta cuando cambian los parámetros de búsqueda en la URL
+   */
   useEffect(() => {
-    // Obtenemos la página de la URL (ej. /?page=2) o usamos '1' por defecto
-    const page = searchParams.get('page') || '1'; 
+    const page = searchParams.get('page') || '1';
     const apiURL = `${import.meta.env.VITE_API_BASE_URL}games`;
 
-    setIsLoading(true);
-    
-    axios.get(apiURL, {
-      params: { page: page } // <-- ¡Añadimos el parámetro 'page' a la petición!
-    })
-      .then(response => {
-        // La API de paginación devuelve un objeto con 'data', 'links', 'meta'
-        setGames(response.data.data);           // La lista de juegos
-        setLinks(response.data.links);          // Los enlaces (prev, 1, 2, 3, next)
-        setMeta(response.data.meta);            // Información (página actual, total)
+    const fetchGames = async () => {
+      setIsLoading(true);
+      try {
+        const response = await axios.get(apiURL, { params: { page } });
+        setGames(response.data.data);
+        setLinks(response.data.links);
+        setMeta(response.data.meta);
+      } catch (error) {
+        console.error("Error al cargar los juegos:", error);
+      } finally {
         setIsLoading(false);
-      })
-      .catch(error => {
-        console.error("Hubo un error al obtener los juegos:", error);
-        setIsLoading(false);
-      });
+      }
+    };
+
+    fetchGames();
   }, [searchParams]); // <-- ¡Se re-ejecuta cada vez que 'searchParams' (la URL) cambia!
 
-  // --- ¡ELIMINADO! ---
-  // Ya no necesitamos el 'filteredGames', 'searchTerm' ni el segundo useEffect.
-  // La barra de búsqueda global del Header se encargará de buscar.
 
-  // --- ¡NUEVO! Handler de Paginación ---
+  /**
+   * Maneja el cambio de página en la paginación
+   * @param {string} url - URL de la página a la que se quiere navegar
+   */
   const handlePageChange = (url: string) => {
-    if (!url) return; // No hacer nada si la URL es null
+    if (!url) return;
 
-    // Extraemos el parámetro "?page=X" de la URL completa
     const pageQuery = new URL(url).searchParams.get('page');
     if (pageQuery) {
-      setSearchParams({ page: pageQuery }); // Actualiza la URL: /?page=X
-      window.scrollTo(0, 0); // Opcional: sube al inicio de la página
+      setSearchParams({ page: pageQuery });
+      window.scrollTo(0, 0);
     }
   };
 
-  // --- Renderizado ---
   return (
     <>
       <Header />
       
       <main className="p-8">
 
-        {/* --- ¡ELIMINADO! --- */}
-        {/* Ya no mostramos la barra de búsqueda local. 
-            La barra global del Header es ahora la única. */}
 
         {isLoading ? (
           <p className="text-center p-8 text-[var(--color-text-secondary)]">Cargando juegos...</p>
         ) : (
           <>
             <div className="grid grid-cols-[repeat(auto-fill,minmax(250px,1fr))] gap-6">
-              {/* 'games' ahora solo tiene los 18-20 juegos de la página actual */}
+              {/* Lista de juegos de la página actual */}
               {games.map(game => (
                 <Card
                   key={game.id}
@@ -105,7 +117,7 @@ function HomePage() {
               ))}
             </div>
 
-            {/* --- ¡NUEVO! Renderiza la paginación --- */}
+            {/* Componente de paginación */}
             <Pagination links={links} onPageChange={handlePageChange} />
           </>
         )}
