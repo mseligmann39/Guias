@@ -1,7 +1,9 @@
 import axios from 'axios';
 
+import { API_URL } from '../config';
+
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8000',
+  baseURL: API_URL,
   // Use Sanctum SPA flow: include credentials so cookies are sent/received
   withCredentials: true,
   headers: {
@@ -22,11 +24,11 @@ api.interceptors.request.use(
       .split('; ')
       .find(row => row.startsWith('XSRF-TOKEN='))
       ?.split('=')[1];
-    
+
     if (xsrfToken) {
       config.headers['X-XSRF-TOKEN'] = decodeURIComponent(xsrfToken);
     }
-    
+
     return config;
   },
   error => {

@@ -63,10 +63,10 @@ const PopularGuides: React.FC = () => {
       <h2 className="text-xl font-bold mb-4 text-white">Guías Populares</h2>
       <div className="space-y-4">
         {guides.map((guide) => (
-          <Link 
-            to={`/guides/${guide.id}`} 
+          <Link
+            to={`/guides/${guide.id}`}
             key={guide.id}
-            className="block p-3 hover:bg-[#3a3a3a] rounded transition-colors"
+            className="block p-3 hover:bg-[#3a3a3a] rounded transition-all duration-300 hover:scale-105 hover:shadow-xl"
           >
             <div className="flex justify-between items-start">
               <div>

@@ -3,20 +3,22 @@ import { useNavigate, useParams } from 'react-router-dom';
 import api from '@/context/api';
 import { useAuth } from '@/context/auth';
 import Header from '../components/layout/Header';
+import { API_URL } from '../config';
+import toast from 'react-hot-toast';
 // ¡Ahora esta importación funcionará!
-import type { Game, Guide, GuideSection } from '@/types'; 
+import type { Game, Guide, GuideSection } from '@/types';
 
 // (El resto de tu código hasta el return...)
 
 // --- INICIO: NUEVOS TIPOS Y ESTADOS ---
 interface GuideSectionState {
-  id?: number; 
-  tempId: string; 
+  id?: number;
+  tempId: string;
   order: number;
   type: 'text' | 'image' | 'video';
-  content: string; 
-  imageFile?: File | null; 
-  image_path?: string | null; 
+  content: string;
+  imageFile?: File | null;
+  image_path?: string | null;
 }
 
 const CreateGuidePage: React.FC = () => {
@@ -26,12 +28,13 @@ const CreateGuidePage: React.FC = () => {
 
   const [title, setTitle] = useState<string>('');
   const [gameId, setGameId] = useState<string>('');
-  const [sections, setSections] = useState<GuideSectionState[]>([]); 
+  const [sections, setSections] = useState<GuideSectionState[]>([]);
 
   const [videoGames, setVideoGames] = useState<Game[]>([]);
-  const [message, setMessage] = useState<string>('');
+  // const [message, setMessage] = useState<string>(''); // Removed in favor of toast
   const [errors, setErrors] = useState<Record<string, string[]>>({});
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   const isEditMode = Boolean(guideId);
 
   // --- FIN: NUEVOS TIPOS Y ESTADOS ---
@@ -46,7 +49,7 @@ const CreateGuidePage: React.FC = () => {
     const loadData = async () => {
       try {
         setIsLoading(true);
-        
+
         const gamesRes = await api.get('/api/games');
         const gamesData = gamesRes.data;
         if (Array.isArray(gamesData)) {
@@ -62,7 +65,7 @@ const CreateGuidePage: React.FC = () => {
           const guideRes = await api.get(`/api/guides/${guideId}`);
           // Definimos 'guide' con el tipo correcto (que ya no tiene 'content')
           const guide: Guide = guideRes.data;
-          
+
           setTitle(guide.title);
           setGameId(String(guide.game_id));
 
@@ -84,7 +87,7 @@ const CreateGuidePage: React.FC = () => {
 
       } catch (err) {
         console.error('Error al cargar datos:', err);
-        setMessage('Error al cargar los datos necesarios');
+        toast.error('Error al cargar los datos necesarios');
       } finally {
         setIsLoading(false);
       }
@@ -106,13 +109,19 @@ const CreateGuidePage: React.FC = () => {
   };
 
   const handleDeleteSection = (tempId: string) => {
-    if (!window.confirm("¿Estás seguro de que quieres eliminar esta sección?")) return;
-    
-    setSections(prev =>
-      prev
-        .filter(sec => sec.tempId !== tempId)
-        .map((sec, index) => ({ ...sec, order: index }))
-    );
+    if (confirmDeleteId === tempId) {
+      setSections(prev =>
+        prev
+          .filter(sec => sec.tempId !== tempId)
+          .map((sec, index) => ({ ...sec, order: index }))
+      );
+      setConfirmDeleteId(null);
+      toast.success('Sección eliminada');
+    } else {
+      setConfirmDeleteId(tempId);
+      // Optional: Auto-reset confirmation after a few seconds
+      setTimeout(() => setConfirmDeleteId(null), 3000);
+    }
   };
 
   const handleSectionChange = (
@@ -140,12 +149,12 @@ const CreateGuidePage: React.FC = () => {
   // --- INICIO: MODIFICACIÓN GRANDE DE 'handleSubmit' ---
   const handleSubmit: React.FormEventHandler<HTMLFormElement> = async e => {
     e.preventDefault();
-    setMessage('');
+    // setMessage('');
     setErrors({});
     setIsLoading(true);
 
     if (!user) {
-      setMessage('Error: Debes estar autenticado.');
+      toast.error('Error: Debes estar autenticado.');
       navigate('/login');
       return;
     }
@@ -165,7 +174,7 @@ const CreateGuidePage: React.FC = () => {
       } else if (section.type !== 'image') {
         formData.append(`sections[${index}][content]`, section.content);
       }
-      
+
       // NOTA: Si es 'image' pero 'imageFile' es null (no se cambió),
       // no adjuntamos ni 'image' ni 'content'.
       // El backend (update) debería ser lo suficientemente listo
@@ -175,7 +184,7 @@ const CreateGuidePage: React.FC = () => {
       // es simple pero requiere que el frontend sea más explícito,
       // pero por ahora, esto funcionará para 'crear')
     });
-    
+
     if (isEditMode) {
       formData.append('_method', 'PUT');
     }
@@ -189,7 +198,7 @@ const CreateGuidePage: React.FC = () => {
         },
       });
 
-      setMessage(
+      toast.success(
         isEditMode ? 'Guía actualizada exitosamente' : 'Guía creada exitosamente'
       );
 
@@ -202,16 +211,16 @@ const CreateGuidePage: React.FC = () => {
       console.error('Error al guardar la guía:', error);
       if (error?.response?.status === 401) {
         await api.post('/logout');
-        setMessage('Tu sesión ha expirado. Por favor, inicia sesión nuevamente.');
+        toast.error('Tu sesión ha expirado. Por favor, inicia sesión nuevamente.');
         navigate('/login', { state: { from: 'session-expired' } });
       } else if (error?.response?.status === 419) {
-        setMessage('La sesión ha expirado (CSRF). Por favor, recarga la página e intenta de nuevo.');
+        toast.error('La sesión ha expirado (CSRF). Por favor, recarga la página e intenta de nuevo.');
       } else if (error?.response?.status === 422 && error.response.data?.errors) {
         setErrors(error.response.data.errors as Record<string, string[]>);
-        setMessage('Por favor, corrige los errores en el formulario.');
+        toast.error('Por favor, corrige los errores en el formulario.');
       } else {
         const errorMessage = error?.response?.data?.message || error?.message || 'Error desconocido';
-        setMessage(`Error al ${isEditMode ? 'actualizar' : 'crear'} la guía: ${errorMessage}`);
+        toast.error(`Error al ${isEditMode ? 'actualizar' : 'crear'} la guía: ${errorMessage}`);
       }
     } finally {
       setIsLoading(false);
@@ -232,23 +241,23 @@ const CreateGuidePage: React.FC = () => {
     );
   }
 
-   if (!user) {
-     return (
-       <>
-         <Header />
-         <main className="max-w-4xl mx-auto p-6">
-           <div className="bg-red-900/30 border border-red-700 text-red-200 p-4 rounded text-center">
-             Debes estar autenticado para {isEditMode ? 'editar' : 'crear'} una guía. Redirigiendo...
-           </div>
-         </main>
-       </>
-     );
-   }
+  if (!user) {
+    return (
+      <>
+        <Header />
+        <main className="max-w-4xl mx-auto p-6">
+          <div className="bg-red-900/30 border border-red-700 text-red-200 p-4 rounded text-center">
+            Debes estar autenticado para {isEditMode ? 'editar' : 'crear'} una guía. Redirigiendo...
+          </div>
+        </main>
+      </>
+    );
+  }
 
   // --- INICIO: MEJORA DE URL DE IMAGEN ---
   // Hacemos que la URL del backend sea dinámica usando variables de entorno
   // (igual que en tu 'api.ts')
-  const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8000';
+  const backendUrl = API_URL;
   // --- FIN: MEJORA DE URL DE IMAGEN ---
 
   return (
@@ -259,17 +268,9 @@ const CreateGuidePage: React.FC = () => {
           <h2 className="text-3xl font-bold text-[var(--color-text-primary)] mb-6 pb-4 border-b border-[var(--color-accent)]">
             {isEditMode ? 'Editar Guía' : 'Crear Nueva Guía'}
           </h2>
-          
-          {message && (
-            <div className={`p-4 mb-6 rounded ${
-              message.includes('éxito') 
-                ? 'bg-green-900/30 border border-green-700 text-green-200' 
-                : 'bg-red-900/30 border border-red-700 text-red-200'
-            }`}>
-              {message}
-            </div>
-          )}
-          
+
+          {/* message block removed */}
+
           <div className="mb-6">
             <label htmlFor="title" className="block text-lg font-medium text-[var(--color-text-primary)] mb-2">
               Título de la guía:
@@ -278,8 +279,8 @@ const CreateGuidePage: React.FC = () => {
               type="text"
               id="title"
               name="title"
-              value={title} 
-              onChange={e => setTitle(e.target.value)} 
+              value={title}
+              onChange={e => setTitle(e.target.value)}
               required
               className="w-full p-3 border border-[var(--color-accent)] rounded bg-[#1e1e1e] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] focus:border-transparent"
               placeholder="Ej: Guía completa de The Witcher 3"
@@ -289,7 +290,7 @@ const CreateGuidePage: React.FC = () => {
               <span className="text-red-400 text-sm mt-1 block">{errors.title[0]}</span>
             )}
           </div>
-          
+
           <div className="mb-6">
             <label htmlFor="game_id" className="block text-lg font-medium text-[var(--color-text-primary)] mb-2">
               Videojuego:
@@ -297,8 +298,8 @@ const CreateGuidePage: React.FC = () => {
             <select
               id="game_id"
               name="game_id"
-              value={gameId} 
-              onChange={e => setGameId(e.target.value)} 
+              value={gameId}
+              onChange={e => setGameId(e.target.value)}
               required
               disabled={isLoading || isEditMode}
               className="w-full p-3 border border-[var(--color-accent)] rounded bg-[#1e1e1e] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] focus:border-transparent appearance-none disabled:opacity-70 disabled:bg-gray-800"
@@ -315,29 +316,32 @@ const CreateGuidePage: React.FC = () => {
             )}
           </div>
 
-          
+
           {/* --- INICIO: SECCIÓN DE CONTENIDO DINÁMICO --- */}
           <div className="mb-8">
             <label className="block text-lg font-medium text-[var(--color-text-primary)] mb-2">
               Contenido de la Guía:
             </label>
-            
+
             <div className="space-y-6">
               {sections.map((section, index) => (
-                <div 
-                  key={section.tempId} 
+                <div
+                  key={section.tempId}
                   className="bg-[#1e1e1e] border border-[var(--color-accent)] rounded-lg p-4"
                 >
                   <div className="flex justify-between items-center mb-3">
                     <span className="font-semibold text-[var(--color-text-secondary)] uppercase text-sm">
                       Sección {index + 1}: {section.type}
                     </span>
-                    <button 
+                    <button
                       type="button"
                       onClick={() => handleDeleteSection(section.tempId)}
-                      className="px-2 py-1 text-xs bg-red-600 text-white rounded hover:bg-red-700"
+                      className={`px-2 py-1 text-xs text-white rounded transition-colors ${confirmDeleteId === section.tempId
+                        ? 'bg-red-800 hover:bg-red-900 font-bold'
+                        : 'bg-red-600 hover:bg-red-700'
+                        }`}
                     >
-                      Eliminar
+                      {confirmDeleteId === section.tempId ? '¿Seguro?' : 'Eliminar'}
                     </button>
                   </div>
 
@@ -381,7 +385,7 @@ const CreateGuidePage: React.FC = () => {
                       placeholder="Pega la URL del video (ej: YouTube, Vimeo)"
                     />
                   )}
-                  
+
                   {/* --- INICIO: CORRECCIÓN ERRORES 3 Y 4 --- */}
                   {/* Usamos 'optional chaining' (?.) para evitar crasheos */}
                   {errors[`sections.${index}.content`]?.[0] && (
@@ -401,22 +405,22 @@ const CreateGuidePage: React.FC = () => {
 
             <div className="flex gap-4 mt-6 pt-4 border-t border-[var(--color-accent)]">
               <span className="text-sm font-medium text-[var(--color-text-primary)] self-center">Añadir sección:</span>
-              <button 
-                type="button" 
+              <button
+                type="button"
                 onClick={() => handleAddSection('text')}
                 className="px-3 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-700"
               >
                 + Texto
               </button>
-              <button 
-                type="button" 
+              <button
+                type="button"
                 onClick={() => handleAddSection('image')}
                 className="px-3 py-1 text-sm bg-green-600 text-white rounded hover:bg-green-700"
               >
                 + Imagen
               </button>
-              <button 
-                type="button" 
+              <button
+                type="button"
                 onClick={() => handleAddSection('video')}
                 className="px-3 py-1 text-sm bg-purple-600 text-white rounded hover:bg-purple-700"
               >
@@ -429,23 +433,23 @@ const CreateGuidePage: React.FC = () => {
           </div>
           {/* --- FIN: SECCIÓN DE CONTENIDO DINÁMICO --- */}
 
-          
+
           <div className="flex justify-end gap-4 pt-4 border-t border-[var(--color-accent)]">
-            <button 
-              type="button" 
+            <button
+              type="button"
               onClick={() => navigate(isEditMode ? `/guides/${guideId}` : '/profile')}
               disabled={isLoading}
               className="px-6 py-2 border border-[var(--color-accent)] text-[var(--color-text-primary)] rounded hover:bg-[#3a3a3a] transition-colors disabled:opacity-50"
             >
               Cancelar
             </button>
-            <button 
-              type="submit" 
+            <button
+              type="submit"
               disabled={isLoading || sections.length === 0}
               className="px-6 py-2 bg-[var(--color-primary)] text-[var(--color-text-primary)] font-bold rounded hover:bg-opacity-90 transition-all hover:shadow-[0_0_15px_rgba(231,0,0,0.3)] disabled:opacity-50"
             >
-              {isLoading 
-                ? 'Guardando...' 
+              {isLoading
+                ? 'Guardando...'
                 : isEditMode ? 'Actualizar Guía' : 'Publicar Guía'}
             </button>
           </div>

@@ -30,10 +30,10 @@ function Header() {
 
   return (
     <header className="flex justify-between items-center py-4 px-8 bg-[var(--color-background)] border-b border-[var(--color-accent)] w-full box-border">
-      <MainLogo/>
+      <MainLogo />
 
-     <div className="flex-grow mx-2 max-w-[1500px] md:max-w-[500px]"> {/* Añadido contenedor flexible y ancho máximo */}
-        <SearchBar/>
+      <div className="flex-grow mx-2 max-w-[1500px] md:max-w-[500px]"> {/* Añadido contenedor flexible y ancho máximo */}
+        <SearchBar />
       </div>
       <nav className="flex items-center gap-6">
         {
@@ -41,7 +41,7 @@ function Header() {
           user ? (
             // Mostramos el nombre del usuario y los enlaces a su perfil y para cerrar la sesión
             <>
-              {user.is_admin && (
+              {!!user.is_admin && (
                 <Link to="/admin" className="px-3 py-2 bg-[var(--color-accent)] text-[var(--color-bg)] rounded">Admin</Link>
               )}
               <span className="text-[var(--color-text-secondary)]">Bienvenido, {user.name}!</span>

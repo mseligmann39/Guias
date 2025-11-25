@@ -12,6 +12,8 @@ class Guide extends Model
 {
     use HasFactory;
 
+    public const PER_PAGE = 15;
+
     protected $fillable = [
         'game_id',
         'user_id',
@@ -48,14 +50,14 @@ class Guide extends Model
     {
         return $this->ratings()->count();
     }
-public function users()
-{
-    return $this->belongsToMany(User::class)
-                ->withPivot('is_favorite', 'progress_status') // ¡Importante!
-                ->withTimestamps();
-}
+    public function users()
+    {
+        return $this->belongsToMany(User::class)
+            ->withPivot('is_favorite', 'progress_status') // ¡Importante!
+            ->withTimestamps();
+    }
 
-public function sections(): HasMany
+    public function sections(): HasMany
     {
         return $this->hasMany(GuideSection::class)->orderBy('order', 'asc');
     }
