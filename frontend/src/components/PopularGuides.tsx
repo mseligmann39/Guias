@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import { Link } from 'react-router-dom';
+import api from '@/context/api';
 
 interface User {
   id: number;
@@ -20,7 +20,7 @@ interface Guide {
   content: string;
   user: User;
   game: Game;
-  ratings_avg_rating: number | null;
+  ratings_avg_rating: number | string | null;
   created_at: string;
   // Add other guide fields as needed
 }
@@ -33,7 +33,7 @@ const PopularGuides: React.FC = () => {
   useEffect(() => {
     const fetchPopularGuides = async () => {
       try {
-        const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}guides/popular`);
+        const response = await api.get('/guides/popular');
         setGuides(response.data);
       } catch (err) {
         console.error('Error fetching popular guides:', err);
@@ -62,7 +62,17 @@ const PopularGuides: React.FC = () => {
     <div className="bg-[#2a2a2a] rounded-lg p-6 shadow-lg">
       <h2 className="text-xl font-bold mb-4 text-white">Guías Populares</h2>
       <div className="space-y-4">
-        {guides.map((guide) => (
+        {guides.map((guide) => {
+          const ratingRaw = guide.ratings_avg_rating;
+          const rating =
+            ratingRaw === null || ratingRaw === undefined
+              ? null
+              : typeof ratingRaw === 'number'
+                ? ratingRaw
+                : Number(ratingRaw);
+          const hasRating = rating !== null && Number.isFinite(rating);
+
+          return (
           <Link
             to={`/guides/${guide.id}`}
             key={guide.id}
@@ -75,14 +85,15 @@ const PopularGuides: React.FC = () => {
                   {guide.game?.title} • Por {guide.user?.name}
                 </p>
               </div>
-              {guide.ratings_avg_rating && (
+              {hasRating && (
                 <div className="flex items-center bg-[var(--color-primary)] text-white text-sm px-2 py-1 rounded">
-                  {guide.ratings_avg_rating.toFixed(1)} ★
+                  {rating.toFixed(1)} ★
                 </div>
               )}
             </div>
           </Link>
-        ))}
+        );
+        })}
       </div>
     </div>
   );

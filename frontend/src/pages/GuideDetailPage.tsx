@@ -10,8 +10,7 @@ import CommentInput from "../components/CommentInput";
 import StarRating from "../components/StarRating";
 import StarInput from "@/components/StarInput";
 import GuideListActions from "@/components/GuideListActions";
-
-const backendUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:8000";
+import { API_ORIGIN, buildStorageUrl } from "@/config";
 
 const getYoutubeEmbedUrl = (url: string): string | null => {
   // ... (tu helper de YouTube está perfecto)
@@ -48,7 +47,7 @@ const GuideDetailPage: React.FC = () => {
     // No ponemos setLoading(true) aquí para que sea una recarga "silenciosa"
     setError(null);
     try {
-      const guideRes = await api.get<Guide>(`/api/guides/${guideId}`);
+      const guideRes = await api.get<Guide>(`/guides/${guideId}`);
       setGuide(guideRes.data);
       setComments(guideRes.data.comments || []);
     } catch (err: any) {
@@ -88,7 +87,33 @@ const GuideDetailPage: React.FC = () => {
   // --- FIN: Paso 2 ---
 
   // (Función renderSection - sin cambios)
+  const resolveUserAvatar = (icon?: string | null) => {
+    if (!icon) {
+      return { type: 'image' as const, src: '/favicon.png' };
+    }
+
+    const trimmed = icon.trim();
+    const looksLikeImage =
+      /^(https?:|data:)/i.test(trimmed) ||
+      trimmed.startsWith('/') ||
+      trimmed.includes('/');
+
+    if (looksLikeImage) {
+      return {
+        type: 'image' as const,
+        src: buildStorageUrl(trimmed) ?? trimmed,
+      };
+    }
+
+    return { type: 'emoji' as const, value: trimmed };
+  };
+
   const renderSection = (section: GuideSection) => {
+    const buildImageSrc = () => {
+      if (!section.image_path) return null;
+      return buildStorageUrl(section.image_path);
+    };
+
     switch (section.type) {
       case "text":
         return (
@@ -99,16 +124,34 @@ const GuideDetailPage: React.FC = () => {
             <ReactMarkdown>{section.content || ""}</ReactMarkdown>
           </div>
         );
-      case "image":
+      case "image": {
+        const imageSrc = buildImageSrc();
         return (
           <div key={section.id} className="my-4 flex justify-center">
-            <img
-              src={`${backendUrl}/storage/${section.image_path}`}
-              alt="Sección de la guía"
-              className="max-w-full h-auto rounded-lg border border-[var(--color-accent)] md:max-w-xl lg:max-w-2xl"
-            />
+            {imageSrc ? (
+              <img
+                src={imageSrc}
+                alt="Sección de la guía"
+                className="max-w-full h-auto rounded-lg border border-[var(--color-accent)] md:max-w-xl lg:max-w-2xl"
+                onError={(event) => {
+                  if (!section.image_path) return;
+                  const fallback = `${API_ORIGIN}/storage/${section.image_path.replace(/^\/+/, '')}`;
+                  if (event.currentTarget.src !== fallback) {
+                    event.currentTarget.src = fallback;
+                  } else {
+                    event.currentTarget.onerror = null;
+                    event.currentTarget.style.display = 'none';
+                  }
+                }}
+              />
+            ) : (
+              <div className="text-sm text-[var(--color-text-secondary)] italic">
+                Imagen no disponible
+              </div>
+            )}
           </div>
         );
+      }
       case "video":
         const embedUrl = section.content
           ? getYoutubeEmbedUrl(section.content)
@@ -165,6 +208,7 @@ const GuideDetailPage: React.FC = () => {
 
   const isAuthor =
     currentUser && guide.user && currentUser.id === guide.user.id;
+  const authorAvatar = guide.user ? resolveUserAvatar(guide.user.profileIcon) : null;
 
   return (
     <>
@@ -202,11 +246,21 @@ const GuideDetailPage: React.FC = () => {
           {/* (Sección de Autor - sin cambios) */}
           {guide.user && (
             <div className="mb-6 flex items-center space-x-3">
-              <img
-                src={guide.user.profileIcon || "/favicon.png"}
-                alt={guide.user.name}
-                className="w-10 h-10 rounded-full bg-gray-700"
-              />
+              {authorAvatar?.type === 'image' ? (
+                <img
+                  src={authorAvatar.src}
+                  alt={guide.user.name}
+                  className="w-10 h-10 rounded-full bg-gray-700 object-cover"
+                  onError={(event) => {
+                    event.currentTarget.onerror = null;
+                    event.currentTarget.src = '/favicon.png';
+                  }}
+                />
+              ) : (
+                <div className="w-10 h-10 rounded-full bg-gray-700 flex items-center justify-center text-2xl">
+                  {authorAvatar?.value || '👤'}
+                </div>
+              )}
               <div>
                 <p className="text-[var(--color-text-primary)] font-semibold">
                   Por:

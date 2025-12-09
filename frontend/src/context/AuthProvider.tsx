@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import api from './api';
+import api, { getCsrfCookie } from './api';
 import { AuthContext, type AuthContextValue } from './AuthContext';
 import type { User } from '@/types';
 
@@ -17,7 +17,7 @@ export const AuthProvider: React.FC<Props> = ({ children }) => {
         const token = localStorage.getItem('token');
         if (token) {
           api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-          const res = await api.get<User>('/api/me');
+          const res = await api.get<User>('/me');
           setUser(res.data);
         }
       } catch (error) {
@@ -34,7 +34,7 @@ export const AuthProvider: React.FC<Props> = ({ children }) => {
   const login: AuthContextValue['login'] = async (email, password) => {
     try {
       // Sanctum SPA flow: get CSRF cookie then POST to web login route (/login)
-      const csrfRes = await api.get('/sanctum/csrf-cookie');
+      const csrfRes = await getCsrfCookie();
       console.log('sanctum/csrf-cookie response:', csrfRes && csrfRes.status);
       try {
         console.log('document.cookie before login:', typeof document !== 'undefined' ? document.cookie : 'no document');
@@ -93,7 +93,7 @@ export const AuthProvider: React.FC<Props> = ({ children }) => {
     password,
     password_confirmation
   ) => {
-    const res = await api.post<{ user: User }>('/api/register', {
+    const res = await api.post<{ user: User }>('/register', {
       name,
       email,
       password,
@@ -105,7 +105,7 @@ export const AuthProvider: React.FC<Props> = ({ children }) => {
 
   const refreshUser: AuthContextValue['refreshUser'] = async () => {
     try {
-      const res = await api.get<User>('/api/me');
+      const res = await api.get<User>('/me');
       setUser(res.data);
     } catch (error) {
       console.error('Error refreshing user:', error);

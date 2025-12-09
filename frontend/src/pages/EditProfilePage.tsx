@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/auth';
 import Header from '../components/layout/Header';
-import api from '../context/api';
+import api, { getCsrfCookie } from '../context/api';
 
 // Array de iconos disponibles (25 diferentes)
 const AVAILABLE_ICONS = [
@@ -52,7 +52,7 @@ function EditProfilePage() {
 
     try {
       // Primero obtenemos el token CSRF
-      await api.get('/sanctum/csrf-cookie');
+      await getCsrfCookie();
       
       const dataToSend = {
         ...formData,
@@ -63,7 +63,7 @@ function EditProfilePage() {
         } : {})
       };
 
-      await api.put('/api/user/profile', dataToSend);
+      await api.put('/user/profile', dataToSend);
       await refreshUser(); // Actualizar la información del usuario en el contexto
       setSuccess('Perfil actualizado correctamente');
     } catch (err: any) {

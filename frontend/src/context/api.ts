@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-import { API_URL } from '../config';
+import { API_URL, API_ORIGIN } from '../config';
 
 const api = axios.create({
   baseURL: API_URL,
@@ -45,7 +45,7 @@ api.interceptors.request.use(
  * @returns {Promise} La respuesta de la API
  */
 export const postComment = (guideId: string | number, body: string) => {
-  return api.post(`/api/guides/${guideId}/comments`, { body });
+  return api.post(`/guides/${guideId}/comments`, { body });
 };
 
 /**
@@ -55,7 +55,7 @@ export const postComment = (guideId: string | number, body: string) => {
  * @returns {Promise} La respuesta de la API
  */
 export const postRating = (guideId: string | number, rating: number) => {
-  return api.post(`/api/guides/${guideId}/ratings`, { rating });
+  return api.post(`/guides/${guideId}/ratings`, { rating });
 };
 
 /**
@@ -64,7 +64,7 @@ export const postRating = (guideId: string | number, rating: number) => {
  * @returns {Promise} La respuesta de la API
  */
 export const deleteComment = (commentId: string | number) => {
-  return api.delete(`/api/comments/${commentId}`);
+  return api.delete(`/comments/${commentId}`);
 };
 
 /**
@@ -76,7 +76,7 @@ export const deleteComment = (commentId: string | number) => {
  * @returns {Promise} The API response
  */
 export const postGuideListStatus = (guideId: string | number, status: { is_favorite: boolean, progress_status: 'todo' | 'completed' | null }) => {
-  return api.post(`/api/guides/${guideId}/list-status`, status);
+  return api.post(`/guides/${guideId}/list-status`, status);
 };
 
 /**
@@ -84,7 +84,7 @@ export const postGuideListStatus = (guideId: string | number, status: { is_favor
  * @returns {Promise} The API response containing the user's lists
  */
 export const getUserLists = () => {
-  return api.get('/api/user/my-lists');
+  return api.get('/user/my-lists');
 };
 
 // --- Tipos para los nuevos filtros ---
@@ -101,7 +101,7 @@ interface GuideFilterParams {
  * @returns {Promise} La respuesta de la API con las guías
  */
 export const getGuides = (params: GuideFilterParams) => {
-  return api.get('/api/guides', { params });
+  return api.get('/guides', { params });
 };
 
 /**
@@ -110,24 +110,35 @@ export const getGuides = (params: GuideFilterParams) => {
  * @returns {Promise} La respuesta de la API con los resultados de búsqueda
  */
 export const searchGlobal = (query: string) => {
-  return api.get('/api/search', { params: { q: query } });
+  return api.get('/search', { params: { q: query } });
 };
 
 export const getGuidesByUserId = (userId: string | number) => {
-  return api.get(`/api/guides/user/${userId}`);
+  return api.get(`/guides/user/${userId}`);
 };
 
 export default api;
 
 // --- Admin reports endpoints ---
 export const getAdminReports = (params?: { page?: number; estado?: string; per_page?: number }) => {
-  return api.get('/api/admin/reportes', { params });
+  return api.get('/admin/reportes', { params });
 };
 
 export const getAdminReport = (reporteId: number | string) => {
-  return api.get(`/api/admin/reportes/${reporteId}`);
+  return api.get(`/admin/reportes/${reporteId}`);
 };
 
 export const updateAdminReport = (reporteId: number | string, data: { estado: 'pendiente' | 'revisado' | 'ignorado' }) => {
-  return api.put(`/api/admin/reportes/${reporteId}`, data);
+  return api.put(`/admin/reportes/${reporteId}`, data);
+};
+
+export const getCsrfCookie = () => {
+  return axios.get(`${API_ORIGIN}/sanctum/csrf-cookie`, {
+    withCredentials: true,
+    headers: {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json',
+      'X-Requested-With': 'XMLHttpRequest',
+    },
+  });
 };

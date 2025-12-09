@@ -34,7 +34,7 @@ const AdminGameManagement: React.FC = () => {
   const fetchGames = useCallback(async (currentPage: number, search: string) => {
     setLoading(true);
     try {
-      const response = await api.get('/api/games', {
+      const response = await api.get('/games', {
         params: {
           page: currentPage,
           search: search,
@@ -63,7 +63,7 @@ const AdminGameManagement: React.FC = () => {
   const handleDelete = async (game: Game) => {
     if (window.confirm(`¿Seguro que quieres eliminar el juego "${game.title}"?`)) {
       try {
-        await api.delete(`/api/admin/games/${game.id}`);
+        await api.delete(`/admin/games/${game.id}`);
         fetchGames(page, debouncedSearch);
       } catch (err: any) {
         alert('Error al eliminar: ' + (err.response?.data?.message || err.message));
@@ -74,7 +74,7 @@ const AdminGameManagement: React.FC = () => {
 const handleSave = async (formData: GameFormData) => {
   const isNew = modalState === 'new';
 
-  const url = isNew ? '/api/admin/games' : `/api/admin/games/${(modalState as Game).id}`;
+  const url = isNew ? '/admin/games' : `/admin/games/${(modalState as Game).id}`;
   // Usamos el método 'post' para crear o 'put' para actualizar
   const method = isNew ? 'post' : 'put';
 

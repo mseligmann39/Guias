@@ -56,7 +56,7 @@ const AdminReportDetail: React.FC = () => {
     if (!reporte) return;
     if (!confirm('¿Eliminar la guía asociada? Esta acción es irreversible.')) return;
     try {
-      await api.delete(`/api/admin/guides/${reporte.guide_id}`);
+      await api.delete(`/admin/guides/${reporte.guide_id}`);
       // Optionally mark reporte as revisado
       await updateAdminReport(reporte.id, { estado: 'revisado' });
       alert('Guía eliminada correctamente');

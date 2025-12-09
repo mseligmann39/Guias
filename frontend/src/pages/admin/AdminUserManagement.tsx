@@ -28,7 +28,7 @@ const AdminUserManagement: React.FC = () => {
   const fetchUsers = useCallback(async (currentPage: number, search: string) => {
     setLoading(true);
     try {
-      const response = await api.get('/api/admin/users', { // <-- Endpoint cambiado
+      const response = await api.get('/admin/users', { // <-- Endpoint cambiado
         params: {
           page: currentPage,
           search: search,
@@ -58,7 +58,7 @@ const AdminUserManagement: React.FC = () => {
   const handleDelete = async (user: User) => {
     if (window.confirm(`¿Seguro que quieres eliminar al usuario "${user.name}" (${user.email})?`)) {
       try {
-        await api.delete(`/api/admin/users/${user.id}`); // <-- Endpoint cambiado
+        await api.delete(`/admin/users/${user.id}`); // <-- Endpoint cambiado
         fetchUsers(page, debouncedSearch); // Refrescamos la lista
       } catch (err: any) {
         alert('Error al eliminar: ' + (err.response?.data?.message || err.message));

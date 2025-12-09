@@ -87,7 +87,7 @@ function SearchBar() {
               <div className="space-y-1">
                 {results.games.map(game => (
                   <Link
-                    to={`/games/${game.slug}`}
+                    to={`/games/${game.id}`}
                     key={`g-${game.id}`}
                     onClick={() => setShowResults(false)}
                     className="block text-white hover:bg-gray-700 rounded px-2 py-1 transition-colors"

@@ -41,7 +41,7 @@ const ReporteModal: React.FC<ReporteModalProps> = ({ guiaId, onClose, onSuccess 
     setError(null);
 
     try {
-      await api.post(`/api/guias/${guiaId}/reporte`, payload);
+      await api.post(`/guias/${guiaId}/reporte`, payload);
       if (onSuccess) onSuccess();
       onClose();
     } catch (err: any) {

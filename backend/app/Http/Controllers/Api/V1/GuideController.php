@@ -191,10 +191,22 @@ class GuideController extends Controller
                 'game_id' => $validatedData['game_id'],
             ]);
 
+            // Recopilar rutas de imágenes que se deben MANTENER (vienen en la request)
+            $keptImagePaths = [];
+            foreach ($request->input('sections') as $sectionData) {
+                if (isset($sectionData['image_path']) && !empty($sectionData['image_path'])) {
+                    $keptImagePaths[] = $sectionData['image_path'];
+                }
+            }
+
+            // Eliminar imágenes antiguas SOLO si no están en la lista de "mantenidas"
             foreach ($guide->sections as $oldSection) {
                 if ($oldSection->image_path) {
-                    if (Storage::disk('public')->exists($oldSection->image_path)) {
-                        Storage::disk('public')->delete($oldSection->image_path);
+                    // Si la imagen antigua NO está en la lista de las que se quedan, se borra del disco
+                    if (!in_array($oldSection->image_path, $keptImagePaths)) {
+                         if (Storage::disk('public')->exists($oldSection->image_path)) {
+                            Storage::disk('public')->delete($oldSection->image_path);
+                        }
                     }
                 }
             }
@@ -207,10 +219,12 @@ class GuideController extends Controller
 
                 if ($sectionData['type'] === 'image') {
                     if ($request->hasFile("sections.$index.image")) {
+                        // Caso A: Se subió una IMAGEN NUEVA
                         $file = $request->file("sections.$index.image");
                         $imagePath = $file->store('guides_images', 'public');
                         $content = null;
                     } elseif (!empty($sectionData['image_path'])) {
+                        // Caso B: Se MANTIENE la imagen existente
                         $imagePath = $sectionData['image_path'];
                     }
                 }

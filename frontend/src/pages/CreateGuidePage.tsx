@@ -3,7 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import api from '@/context/api';
 import { useAuth } from '@/context/auth';
 import Header from '../components/layout/Header';
-import { API_URL } from '../config';
+import { buildStorageUrl } from '@/config';
 import toast from 'react-hot-toast';
 // ¡Ahora esta importación funcionará!
 import type { Game, Guide, GuideSection } from '@/types';
@@ -50,7 +50,7 @@ const CreateGuidePage: React.FC = () => {
       try {
         setIsLoading(true);
 
-        const gamesRes = await api.get('/api/games');
+        const gamesRes = await api.get('/games');
         const gamesData = gamesRes.data;
         if (Array.isArray(gamesData)) {
           setVideoGames(gamesData);
@@ -62,7 +62,7 @@ const CreateGuidePage: React.FC = () => {
 
         // --- INICIO: MODIFICACIÓN DEL 'loadData' PARA MODO EDICIÓN ---
         if (isEditMode && guideId) {
-          const guideRes = await api.get(`/api/guides/${guideId}`);
+          const guideRes = await api.get(`/guides/${guideId}`);
           // Definimos 'guide' con el tipo correcto (que ya no tiene 'content')
           const guide: Guide = guideRes.data;
 
@@ -169,20 +169,18 @@ const CreateGuidePage: React.FC = () => {
       formData.append(`sections[${index}][order]`, String(section.order));
       formData.append(`sections[${index}][type]`, section.type);
 
-      if (section.type === 'image' && section.imageFile) {
-        formData.append(`sections[${index}][image]`, section.imageFile);
+      if (section.type === 'image') {
+        if (section.imageFile) {
+          // Si hay UN NUEVO archivo, lo enviamos como 'image'
+          formData.append(`sections[${index}][image]`, section.imageFile);
+        } else if (section.image_path) {
+          // Si NO hay archivo nuevo pero SI hay una ruta existente (es una edición y mantenemos la imagen)
+          // enviamos la ruta como 'image_path' para que el backend sepa que debe conservarla.
+          formData.append(`sections[${index}][image_path]`, section.image_path);
+        }
       } else if (section.type !== 'image') {
         formData.append(`sections[${index}][content]`, section.content);
       }
-
-      // NOTA: Si es 'image' pero 'imageFile' es null (no se cambió),
-      // no adjuntamos ni 'image' ni 'content'.
-      // El backend (update) debería ser lo suficientemente listo
-      // para ignorar la sección si no viene 'image' ni 'content'
-      // y mantener la imagen antigua.
-      // (Nuestra lógica actual de "borrar y recrear" en el backend
-      // es simple pero requiere que el frontend sea más explícito,
-      // pero por ahora, esto funcionará para 'crear')
     });
 
     if (isEditMode) {
@@ -190,7 +188,7 @@ const CreateGuidePage: React.FC = () => {
     }
 
     try {
-      const requestUrl = isEditMode ? `/api/guides/${guideId}` : '/api/guides';
+      const requestUrl = isEditMode ? `/guides/${guideId}` : '/guides';
       // Usamos POST para ambos, ya que '_method' maneja el 'PUT'
       const response = await api.post(requestUrl, formData, {
         headers: {
@@ -253,12 +251,6 @@ const CreateGuidePage: React.FC = () => {
       </>
     );
   }
-
-  // --- INICIO: MEJORA DE URL DE IMAGEN ---
-  // Hacemos que la URL del backend sea dinámica usando variables de entorno
-  // (igual que en tu 'api.ts')
-  const backendUrl = API_URL;
-  // --- FIN: MEJORA DE URL DE IMAGEN ---
 
   return (
     <>
@@ -370,7 +362,13 @@ const CreateGuidePage: React.FC = () => {
                         <div className="mt-2">
                           <p className="text-xs text-gray-400">Imagen actual:</p>
                           {/* --- MEJORA: URL dinámica --- */}
-                          <img src={`${backendUrl}/storage/${section.image_path}`} alt="Vista previa" className="max-w-xs rounded mt-1" />
+                          {buildStorageUrl(section.image_path) && (
+                            <img
+                              src={buildStorageUrl(section.image_path) as string}
+                              alt="Vista previa"
+                              className="max-w-xs rounded mt-1"
+                            />
+                          )}
                         </div>
                       )}
                     </div>

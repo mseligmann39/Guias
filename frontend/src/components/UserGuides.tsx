@@ -15,7 +15,7 @@ function UserGuides() {
   useEffect(() => {
     if (user) {
       api
-        .get<Guide[]>(`/api/guides/user/${user.id}`)
+        .get<Guide[]>(`/guides/user/${user.id}`)
         .then((response) => {
           setUserGuides(response.data);
         })
@@ -43,7 +43,7 @@ function UserGuides() {
 
     // 2. Llamada a la API
     api
-      .delete(`/api/guides/${guideId}`)
+      .delete(`/guides/${guideId}`)
       .then(() => {
         // 3. Actualizar el estado local para reflejar el cambio
         setUserGuides((prevGuides) =>

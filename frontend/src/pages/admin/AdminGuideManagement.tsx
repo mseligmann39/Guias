@@ -39,7 +39,7 @@ const AdminGuideManagement: React.FC = () => {
   const fetchGuides = useCallback(async (currentPage: number, search: string) => {
     setLoading(true);
     try {
-      const response = await api.get('/api/admin/guides', { // <-- Endpoint cambiado
+      const response = await api.get('/admin/guides', { // <-- Endpoint cambiado
         params: {
           page: currentPage,
           search: search,
@@ -69,7 +69,7 @@ const AdminGuideManagement: React.FC = () => {
   const handleDelete = async (guide: Guide) => {
     if (window.confirm(`¿Seguro que quieres eliminar la guía "${guide.title}"?`)) {
       try {
-        await api.delete(`/api/admin/guides/${guide.id}`); // <-- Endpoint cambiado
+        await api.delete(`/admin/guides/${guide.id}`); // <-- Endpoint cambiado
         fetchGuides(page, debouncedSearch); // Refrescamos la lista
       } catch (err: any) {
         alert('Error al eliminar: ' + (err.response?.data?.message || err.message));
