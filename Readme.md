@@ -2,6 +2,8 @@
 
 Este es el proyecto final para el Grado Superior en **Técnico Superior en Desarrollo de Aplicaciones Web (TSDAW)**. Consiste en una aplicación web Full Stack diseñada para ser una plataforma donde los usuarios pueden consultar guías, logros y otra información relevante sobre videojuegos.
 
+🔗 **Demo Online:** [tguias.seligmann.es](https://tguias.seligmann.es)
+
 ![Captura de la Página Principal]()
 *<p align="center">Página principal mostrando el catálogo de juegos.</p>*
 
@@ -27,11 +29,11 @@ El proyecto sigue una arquitectura de microservicios desacoplada, con un backend
 
 | Backend | Frontend | Herramientas |
 | :---: | :---: | :---: |
-| **PHP 8.2+** | **React 18+** | **VS Code** |
+| **PHP 8.2+** | **React 19+** | **VS Code** |
 | **Laravel 12** | **Vite** | **Git / GitHub** |
 | **Laravel Sanctum** | **React Router** | **WSL (Ubuntu)** |
 | **SQLite** (para desarrollo) | **Axios** | **Postman** |
-| | **CSS Moderno** | |
+| | **Tailwind CSS 4** | |
 
 ## ⚙️ Instalación y Puesta en Marcha
 
