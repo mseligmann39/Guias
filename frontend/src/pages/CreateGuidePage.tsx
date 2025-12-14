@@ -50,7 +50,7 @@ const CreateGuidePage: React.FC = () => {
       try {
         setIsLoading(true);
 
-        const gamesRes = await api.get('/games');
+        const gamesRes = await api.get('/games?all=true');
         const gamesData = gamesRes.data;
         if (Array.isArray(gamesData)) {
           setVideoGames(gamesData);

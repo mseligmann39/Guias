@@ -27,6 +27,11 @@ class GameController extends Controller
     // Ordenar por título por defecto
     $query->orderBy('title', 'asc');
 
+    // Check if we want all games (lightweight list for dropdowns)
+    if ($request->has('all') && $request->input('all') == 'true') {
+        return response()->json($query->select('id', 'title')->get());
+    }
+
     // Devolvemos 18 por página (o 50 si es una petición de admin)
     $perPage = $request->input('per_page', 18);
 

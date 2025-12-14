@@ -69,7 +69,7 @@ export const AuthProvider: React.FC<Props> = ({ children }) => {
 
       // Asegurarse que el token está en los headers
       api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-      
+
       // Intentar hacer logout usando la ruta web (/logout) — Sanctum will use session cookie
       const logoutRes = await api.post('/logout');
       console.log('POST /logout response:', logoutRes && logoutRes.status, logoutRes && logoutRes.data);
@@ -93,14 +93,22 @@ export const AuthProvider: React.FC<Props> = ({ children }) => {
     password,
     password_confirmation
   ) => {
-    const res = await api.post<{ user: User }>('/register', {
+    const res = await api.post<{ user: User, token: string }>('/register', {
       name,
       email,
       password,
       password_confirmation,
     });
-    // Después del registro el backend puede devolver el usuario (y opcionalmente token)
-    setUser(res.data.user);
+    // Después del registro el backend devuelve el usuario y el token
+    const { token, user } = res.data;
+
+    // Guardar el token en localStorage
+    localStorage.setItem('token', token);
+
+    // Actualizar el header de autorización
+    api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+
+    setUser(user);
   };
 
   const refreshUser: AuthContextValue['refreshUser'] = async () => {
@@ -122,7 +130,7 @@ export const AuthProvider: React.FC<Props> = ({ children }) => {
     register,
     refreshUser,
   } as AuthContextValue;
-  
+
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 

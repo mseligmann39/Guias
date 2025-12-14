@@ -35,7 +35,7 @@ class ReporteGuiaController extends Controller
      */
     public function show(ReporteGuia $reporte)
     {
-        $reporte->load(['guia', 'usuario']);
+        $reporte->load(['guia.sections', 'guia.game', 'guia.user', 'usuario']);
         return response()->json($reporte);
     }
 
