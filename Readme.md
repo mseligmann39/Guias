@@ -98,15 +98,10 @@ npm run dev
 
 
 🛣️ Futuras Mejoras (Roadmap)
-[ ] Sistema de Autenticación Completo: Implementar los formularios de Login y Registro en el frontend para que los usuarios puedan crear cuentas.
-
-[ ] Creación de Guías: Permitir a los usuarios autenticados crear, editar y eliminar sus propias guías para los juegos.
-
-[ ] Sistema de Búsqueda: Añadir una barra de búsqueda en el frontend para encontrar juegos por título.
-
-[ ] Paginación: Implementar paginación tanto en el backend como en el frontend para manejar grandes volúmenes de datos.
-
-[ ] Perfiles de Usuario: Una página donde los usuarios puedan ver las guías que han creado.
+[ ] Sistema de Email y notificaciones  para recuperar credenciales.
+[ ] I18N Multi-idiomas para globalizar la app.
+[ ] Mejoras de Accesibilidad (Problemas de vision).
+[ ] Logros y analiticas para usuarios creadores de guias.
 
 👨‍💻 Autor
 Maximiliano Seligmann
